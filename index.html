@@ -337,9 +337,22 @@
         function handleAddComponent(e) {
             e.preventDefault();
 
+            const nameValue = document.getElementById('componentName').value.trim();
+            
+            // Validate component name
+            if (!nameValue || nameValue.length === 0) {
+                alert('Please enter a component name.');
+                return;
+            }
+            
+            if (nameValue.length > 100) {
+                alert('Component name is too long. Please limit to 100 characters.');
+                return;
+            }
+
             const component = {
                 id: nextComponentId++,
-                name: document.getElementById('componentName').value,
+                name: nameValue,
                 componentCost: parseFloat(document.getElementById('componentCost').value) || 0,
                 freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
                 bulkAssemblyScrap: parseFloat(document.getElementById('bulkAssemblyScrap').value) || 0,
@@ -356,6 +369,13 @@
         function handleRemoveClick(e) {
             if (e.target.classList.contains('btn-remove')) {
                 const id = parseInt(e.target.dataset.componentId, 10);
+                
+                // Validate that we got a valid ID
+                if (isNaN(id)) {
+                    console.error('Invalid component ID');
+                    return;
+                }
+                
                 components = components.filter(c => c.id !== id);
                 renderComponents();
                 updateSummary();
