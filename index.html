@@ -396,14 +396,6 @@
                     <span id="freightOutTotal">$0.00</span>
                 </div>
                 <div class="summary-row">
-                    <span>Margin (Product) (<span id="marginPercentDisplay">0</span>%):</span>
-                    <span id="marginAmount">$0.00</span>
-                </div>
-                <div class="summary-row">
-                    <span>Margin (Reciprocal Tariff) (<span id="reciprocalMarginPercentDisplay">10</span>%):</span>
-                    <span id="reciprocalMarginAmount">$0.00</span>
-                </div>
-                <div class="summary-row">
                     <span><b>Total Price:</b></span>
                     <span id="ddpPrice"><b>$0.00</b></span> 
                 </div>
@@ -592,56 +584,52 @@
             const primaryPackComponents = components.filter(c => c.type === 'Primary Pack');
             const secondaryPackComponents = components.filter(c => c.type === 'Secondary Packaging');
             
-            // Calculate Primary Pack total (all costs including freight, bulk, scrap, etc.)
-            const primaryPackTotal = primaryPackComponents.reduce((sum, c) => 
+            // Calculate base costs (before applying margins)
+            const primaryPackCost = primaryPackComponents.reduce((sum, c) => 
                 sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             
-            // Calculate Secondary Pack total (all costs including freight, bulk, scrap, etc.)
-            const secondaryPackTotal = secondaryPackComponents.reduce((sum, c) => 
+            const secondaryPackCost = secondaryPackComponents.reduce((sum, c) => 
                 sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             
-            // Calculate total duties (from all components)
             const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
             
-            // Calculate total standard tariff (from all components)
             const totalStandardTariff = components.reduce((sum, c) => sum + c.standardTariffCost, 0);
             
-            // Calculate total reciprocal tariff (from all components)
-            const totalReciprocalTariff = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);
+            const totalReciprocalTariffCost = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);
             
-            // Get Freight Out cost (product level)
             const freightOutCost = parseFloat(freightOutCostInput.value) || 0;
             
-            // Calculate subtotal before margins
-            const subtotal = primaryPackTotal + secondaryPackTotal + totalDutiesCost + 
-                           totalStandardTariff + totalReciprocalTariff + freightOutCost;
-
-            // Calculate margin (product) - applied to subtotal
+            // Get margin percentages
             const marginPercent = parseFloat(marginPercentInput.value) || 0;
-            const marginAmount = (subtotal * marginPercent) / 100;
-            
-            // Calculate margin for reciprocal tariff separately
             const reciprocalMarginPercent = parseFloat(reciprocalMarginPercentInput.value) || 0;
-            const reciprocalMarginAmount = (totalReciprocalTariff * reciprocalMarginPercent) / 100;
             
-            // Calculate total price
-            const totalPrice = subtotal + marginAmount + reciprocalMarginAmount;
+            // Apply margins to get prices (margins are applied separately to different cost categories)
+            const primaryPackPrice = primaryPackCost * (1 + marginPercent / 100);
+            const secondaryPackPrice = secondaryPackCost * (1 + marginPercent / 100);
+            const dutiesPrice = totalDutiesCost * (1 + marginPercent / 100);
+            const standardTariffPrice = totalStandardTariff * (1 + marginPercent / 100);
+            const freightOutPrice = freightOutCost * (1 + marginPercent / 100);
+            const reciprocalTariffPrice = totalReciprocalTariffCost * (1 + reciprocalMarginPercent / 100);
             
-            // Calculate total margin (sum of both margins)
-            const totalMarginAmount = marginAmount + reciprocalMarginAmount;
-            const totalMarginPercent = subtotal > 0 ? (totalMarginAmount / subtotal) * 100 : 0;
+            // Calculate total price (sum of all prices including margins)
+            const totalPrice = primaryPackPrice + secondaryPackPrice + dutiesPrice + 
+                             standardTariffPrice + reciprocalTariffPrice + freightOutPrice;
+            
+            // Calculate total cost (sum of all base costs)
+            const totalCost = primaryPackCost + secondaryPackCost + totalDutiesCost + 
+                            totalStandardTariff + totalReciprocalTariffCost + freightOutCost;
+            
+            // Calculate total margin amount and percentage
+            const totalMarginAmount = totalPrice - totalCost;
+            const totalMarginPercent = totalCost > 0 ? (totalMarginAmount / totalCost) * 100 : 0;
 
-            // Update DOM
-            document.getElementById('primaryPackTotal').textContent = `$${primaryPackTotal.toFixed(2)}`;
-            document.getElementById('secondaryPackTotal').textContent = `$${secondaryPackTotal.toFixed(2)}`;
-            document.getElementById('totalDutiesCost').textContent = `$${totalDutiesCost.toFixed(2)}`;
-            document.getElementById('totalStandardTariff').textContent = `$${totalStandardTariff.toFixed(2)}`;
-            document.getElementById('totalReciprocalTariff').textContent = `$${totalReciprocalTariff.toFixed(2)}`;
-            document.getElementById('freightOutTotal').textContent = `$${freightOutCost.toFixed(2)}`;
-            document.getElementById('marginPercentDisplay').textContent = marginPercent.toFixed(2);
-            document.getElementById('marginAmount').textContent = `$${marginAmount.toFixed(2)}`;
-            document.getElementById('reciprocalMarginPercentDisplay').textContent = reciprocalMarginPercent.toFixed(2);
-            document.getElementById('reciprocalMarginAmount').textContent = `$${reciprocalMarginAmount.toFixed(2)}`;
+            // Update DOM with prices (including margin)
+            document.getElementById('primaryPackTotal').textContent = `$${primaryPackPrice.toFixed(2)}`;
+            document.getElementById('secondaryPackTotal').textContent = `$${secondaryPackPrice.toFixed(2)}`;
+            document.getElementById('totalDutiesCost').textContent = `$${dutiesPrice.toFixed(2)}`;
+            document.getElementById('totalStandardTariff').textContent = `$${standardTariffPrice.toFixed(2)}`;
+            document.getElementById('totalReciprocalTariff').textContent = `$${reciprocalTariffPrice.toFixed(2)}`;
+            document.getElementById('freightOutTotal').textContent = `$${freightOutPrice.toFixed(2)}`;
             document.getElementById('ddpPrice').textContent = `$${totalPrice.toFixed(2)}`;
             document.getElementById('totalMarginPercentDisplay').textContent = totalMarginPercent.toFixed(2);
             document.getElementById('totalMarginAmount').textContent = `$${totalMarginAmount.toFixed(2)}`;
@@ -728,38 +716,46 @@
                 }
             });
 
-            // Calculate summary values
+            // Calculate summary values - base costs before applying margins
             const primaryPackComponents = components.filter(c => c.type === 'Primary Pack');
             const secondaryPackComponents = components.filter(c => c.type === 'Secondary Packaging');
             
-            const primaryPackTotal = primaryPackComponents.reduce((sum, c) => 
+            const primaryPackCost = primaryPackComponents.reduce((sum, c) => 
                 sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
-            const secondaryPackTotal = secondaryPackComponents.reduce((sum, c) => 
+            const secondaryPackCost = secondaryPackComponents.reduce((sum, c) => 
                 sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
             const totalStandardTariff = components.reduce((sum, c) => sum + c.standardTariffCost, 0);
-            const totalReciprocalTariff = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);
+            const totalReciprocalTariffCost = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);
             
-            const subtotal = primaryPackTotal + secondaryPackTotal + totalDutiesCost + 
-                           totalStandardTariff + totalReciprocalTariff + freightOutCost;
-            const marginAmount = (subtotal * marginPercent) / 100;
-            const reciprocalMarginAmount = (totalReciprocalTariff * reciprocalMarginPercent) / 100;
-            const totalPrice = subtotal + marginAmount + reciprocalMarginAmount;
+            // Apply margins to get prices (margins are applied separately to different cost categories)
+            const primaryPackPrice = primaryPackCost * (1 + marginPercent / 100);
+            const secondaryPackPrice = secondaryPackCost * (1 + marginPercent / 100);
+            const dutiesPrice = totalDutiesCost * (1 + marginPercent / 100);
+            const standardTariffPrice = totalStandardTariff * (1 + marginPercent / 100);
+            const freightOutPrice = freightOutCost * (1 + marginPercent / 100);
+            const reciprocalTariffPrice = totalReciprocalTariffCost * (1 + reciprocalMarginPercent / 100);
             
-            // Calculate total margin
-            const totalMarginAmount = marginAmount + reciprocalMarginAmount;
-            const totalMarginPercent = subtotal > 0 ? (totalMarginAmount / subtotal) * 100 : 0;
+            // Calculate total price (sum of all prices including margins)
+            const totalPrice = primaryPackPrice + secondaryPackPrice + dutiesPrice + 
+                             standardTariffPrice + reciprocalTariffPrice + freightOutPrice;
+            
+            // Calculate total cost (sum of all base costs)
+            const totalCost = primaryPackCost + secondaryPackCost + totalDutiesCost + 
+                            totalStandardTariff + totalReciprocalTariffCost + freightOutCost;
+            
+            // Calculate total margin amount and percentage
+            const totalMarginAmount = totalPrice - totalCost;
+            const totalMarginPercent = totalCost > 0 ? (totalMarginAmount / totalCost) * 100 : 0;
 
             // Add summary table
             const summaryData = [
-                ['Primary Pack', '$' + primaryPackTotal.toFixed(2)],
-                ['Secondary Pack', '$' + secondaryPackTotal.toFixed(2)],
-                ['Duties', '$' + totalDutiesCost.toFixed(2)],
-                ['Standard Tariff', '$' + totalStandardTariff.toFixed(2)],
-                ['Reciprocal Tariff', '$' + totalReciprocalTariff.toFixed(2)],
-                ['Freight Out', '$' + freightOutCost.toFixed(2)],
-                ['Margin (Product) (' + marginPercent.toFixed(2) + '%)', '$' + marginAmount.toFixed(2)],
-                ['Margin (Reciprocal Tariff) (' + reciprocalMarginPercent.toFixed(2) + '%)', '$' + reciprocalMarginAmount.toFixed(2)],
+                ['Primary Pack', '$' + primaryPackPrice.toFixed(2)],
+                ['Secondary Pack', '$' + secondaryPackPrice.toFixed(2)],
+                ['Duties', '$' + dutiesPrice.toFixed(2)],
+                ['Standard Tariff', '$' + standardTariffPrice.toFixed(2)],
+                ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(2)],
+                ['Freight Out', '$' + freightOutPrice.toFixed(2)],
                 ['Total Price', '$' + totalPrice.toFixed(2)],
                 ['Total Margin (' + totalMarginPercent.toFixed(2) + '%)', '$' + totalMarginAmount.toFixed(2)]
             ];
