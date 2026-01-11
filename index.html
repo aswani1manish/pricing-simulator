@@ -369,34 +369,54 @@
                 return;
             }
 
-            componentsList.innerHTML = components.map(component => {
-                const componentName = String(component.name).replace(/</g, '&lt;').replace(/>/g, '&gt;');
-                return `
-                <div class="component-item">
-                    <div class="component-header">
-                        <div class="component-name">${componentName}</div>
-                        <button class="btn-remove" data-component-id="${component.id}">Remove</button>
-                    </div>
-                    <div class="component-details">
-                        <div class="component-detail">
-                            <strong>Component Cost:</strong> $${component.componentCost.toFixed(2)}
-                        </div>
-                        <div class="component-detail">
-                            <strong>Freight Cost:</strong> $${component.freightCost.toFixed(2)}
-                        </div>
-                        <div class="component-detail">
-                            <strong>Bulk/Assembly/Scrap:</strong> $${component.bulkAssemblyScrap.toFixed(2)}
-                        </div>
-                        <div class="component-detail">
-                            <strong>Duties Cost:</strong> $${component.dutiesCost.toFixed(2)}
-                        </div>
-                        <div class="component-detail">
-                            <strong>Total:</strong> $${(component.componentCost + component.freightCost + component.bulkAssemblyScrap + component.dutiesCost).toFixed(2)}
-                        </div>
-                    </div>
-                </div>
-            `;
-            }).join('');
+            // Clear existing components
+            componentsList.innerHTML = '';
+
+            // Create and append each component using DOM manipulation for better security
+            components.forEach(component => {
+                const componentItem = document.createElement('div');
+                componentItem.className = 'component-item';
+
+                const componentHeader = document.createElement('div');
+                componentHeader.className = 'component-header';
+
+                const componentNameDiv = document.createElement('div');
+                componentNameDiv.className = 'component-name';
+                componentNameDiv.textContent = component.name; // Safe from XSS
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn-remove';
+                removeBtn.dataset.componentId = component.id;
+                removeBtn.textContent = 'Remove';
+
+                componentHeader.appendChild(componentNameDiv);
+                componentHeader.appendChild(removeBtn);
+
+                const componentDetails = document.createElement('div');
+                componentDetails.className = 'component-details';
+
+                // Helper function to create detail div
+                const createDetail = (label, value) => {
+                    const detailDiv = document.createElement('div');
+                    detailDiv.className = 'component-detail';
+                    const strong = document.createElement('strong');
+                    strong.textContent = label + ':';
+                    detailDiv.appendChild(strong);
+                    detailDiv.appendChild(document.createTextNode(' $' + value.toFixed(2)));
+                    return detailDiv;
+                };
+
+                componentDetails.appendChild(createDetail('Component Cost', component.componentCost));
+                componentDetails.appendChild(createDetail('Freight Cost', component.freightCost));
+                componentDetails.appendChild(createDetail('Bulk/Assembly/Scrap', component.bulkAssemblyScrap));
+                componentDetails.appendChild(createDetail('Duties Cost', component.dutiesCost));
+                componentDetails.appendChild(createDetail('Total', 
+                    component.componentCost + component.freightCost + component.bulkAssemblyScrap + component.dutiesCost));
+
+                componentItem.appendChild(componentHeader);
+                componentItem.appendChild(componentDetails);
+                componentsList.appendChild(componentItem);
+            });
         }
 
         // Update Price Summary
