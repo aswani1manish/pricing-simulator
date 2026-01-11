@@ -321,6 +321,7 @@
     <script>
         // Application State
         let components = [];
+        let nextComponentId = 1;
 
         // DOM Elements
         const componentForm = document.getElementById('componentForm');
@@ -330,13 +331,14 @@
         // Event Listeners
         componentForm.addEventListener('submit', handleAddComponent);
         marginPercentInput.addEventListener('input', updateSummary);
+        componentsList.addEventListener('click', handleRemoveClick);
 
         // Add Component Handler
         function handleAddComponent(e) {
             e.preventDefault();
 
             const component = {
-                id: Date.now(),
+                id: nextComponentId++,
                 name: document.getElementById('componentName').value,
                 componentCost: parseFloat(document.getElementById('componentCost').value) || 0,
                 freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
@@ -351,10 +353,13 @@
         }
 
         // Remove Component Handler
-        function handleRemoveComponent(id) {
-            components = components.filter(c => c.id !== id);
-            renderComponents();
-            updateSummary();
+        function handleRemoveClick(e) {
+            if (e.target.classList.contains('btn-remove')) {
+                const id = parseInt(e.target.dataset.componentId, 10);
+                components = components.filter(c => c.id !== id);
+                renderComponents();
+                updateSummary();
+            }
         }
 
         // Render Components List
@@ -364,11 +369,13 @@
                 return;
             }
 
-            componentsList.innerHTML = components.map(component => `
+            componentsList.innerHTML = components.map(component => {
+                const componentName = String(component.name).replace(/</g, '&lt;').replace(/>/g, '&gt;');
+                return `
                 <div class="component-item">
                     <div class="component-header">
-                        <div class="component-name">${component.name}</div>
-                        <button class="btn-remove" onclick="handleRemoveComponent(${component.id})">Remove</button>
+                        <div class="component-name">${componentName}</div>
+                        <button class="btn-remove" data-component-id="${component.id}">Remove</button>
                     </div>
                     <div class="component-details">
                         <div class="component-detail">
@@ -388,7 +395,8 @@
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `;
+            }).join('');
         }
 
         // Update Price Summary
