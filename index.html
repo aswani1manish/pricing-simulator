@@ -416,6 +416,9 @@
                     <span id="totalMarginAmount">$0.000</span>
                 </div>
                 <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
+                <button id="exportJsonBtn" class="btn-export" style="background: #2980b9; margin-top: 5px;">Export Data (JSON)</button>
+                <button id="importJsonBtn" class="btn-export" style="background: #e67e22; margin-top: 5px;">Import Data (JSON)</button>
+                <input type="file" id="importFileInput" accept=".json" style="display: none;">
             </div>
         </div>
     </div>
@@ -437,6 +440,9 @@
         const reciprocalMarginPercentInput = document.getElementById('reciprocalMarginPercent');
         const freightOutCostInput = document.getElementById('freightOutCost');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const importJsonBtn = document.getElementById('importJsonBtn');
+        const importFileInput = document.getElementById('importFileInput');
         const submitButton = componentForm.querySelector('button[type="submit"]');
 
         // Event Listeners
@@ -446,6 +452,9 @@
         freightOutCostInput.addEventListener('input', updateSummary);
         componentsList.addEventListener('click', handleComponentActions);
         exportPdfBtn.addEventListener('click', exportToPdf);
+        exportJsonBtn.addEventListener('click', exportToJson);
+        importJsonBtn.addEventListener('click', () => importFileInput.click());
+        importFileInput.addEventListener('change', handleImportJson);
 
         // Add/Update Component Handler
         function handleAddComponent(e) {
@@ -883,6 +892,146 @@
             // Save PDF
             const fileName = productName.replace(/[^a-z0-9]/gi, '_') + '_pricing.pdf';
             doc.save(fileName);
+        }
+
+        // Export to JSON
+        function exportToJson() {
+            const customerName = document.getElementById('customerName').value.trim();
+            const productName = document.getElementById('productName').value.trim();
+            const freightOutCost = parseFloat(freightOutCostInput.value) || 0;
+            const marginPercent = parseFloat(marginPercentInput.value) || 0;
+            const reciprocalMarginPercent = parseFloat(reciprocalMarginPercentInput.value) || 0;
+
+            const data = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                productInfo: {
+                    customerName: customerName,
+                    productName: productName,
+                    freightOutCost: freightOutCost,
+                    marginPercent: marginPercent,
+                    reciprocalMarginPercent: reciprocalMarginPercent
+                },
+                components: components.map(c => ({
+                    name: c.name,
+                    type: c.type,
+                    vendorName: c.vendorName,
+                    sourceCountry: c.sourceCountry,
+                    componentCost: c.componentCost,
+                    freightCost: c.freightCost,
+                    scrapPercent: c.scrapPercent,
+                    dutiesPercent: c.dutiesPercent,
+                    standardTariffPercent: c.standardTariffPercent,
+                    reciprocalTariffPercent: c.reciprocalTariffPercent
+                }))
+            };
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const fileName = (productName || 'pricing_data').replace(/[^a-z0-9]/gi, '_') + '.json';
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Handle Import JSON
+        function handleImportJson(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Validate data structure
+                    if (!data.productInfo || !data.components) {
+                        alert('Invalid data file format.');
+                        return;
+                    }
+
+                    // Confirm import
+                    const confirmMsg = 'This will replace all current data. Do you want to continue?';
+                    if (!confirm(confirmMsg)) {
+                        return;
+                    }
+
+                    // Import product info
+                    document.getElementById('customerName').value = data.productInfo.customerName || '';
+                    document.getElementById('productName').value = data.productInfo.productName || '';
+                    freightOutCostInput.value = data.productInfo.freightOutCost || 0;
+                    marginPercentInput.value = data.productInfo.marginPercent || 0;
+                    reciprocalMarginPercentInput.value = data.productInfo.reciprocalMarginPercent || 0;
+
+                    // Clear existing components
+                    components = [];
+                    nextComponentId = 1;
+
+                    // Import components
+                    data.components.forEach(compData => {
+                        const componentCost = parseFloat(compData.componentCost) || 0;
+                        const scrapPercent = parseFloat(compData.scrapPercent) || 0;
+                        const dutiesPercent = parseFloat(compData.dutiesPercent) || 0;
+                        const standardTariffPercent = parseFloat(compData.standardTariffPercent) || 0;
+                        const reciprocalTariffPercent = parseFloat(compData.reciprocalTariffPercent) || 0;
+                        
+                        const scrapCost = (componentCost * scrapPercent) / 100;
+                        const dutiesCost = (componentCost * dutiesPercent) / 100;
+                        const standardTariffCost = (componentCost * standardTariffPercent) / 100;
+                        const reciprocalTariffCost = ((componentCost + scrapCost) * reciprocalTariffPercent) / 100;
+
+                        const component = {
+                            id: nextComponentId++,
+                            name: compData.name,
+                            type: compData.type,
+                            vendorName: compData.vendorName || '',
+                            sourceCountry: compData.sourceCountry,
+                            componentCost: componentCost,
+                            freightCost: parseFloat(compData.freightCost) || 0,
+                            scrapPercent: scrapPercent,
+                            scrapCost: scrapCost,
+                            dutiesPercent: dutiesPercent,
+                            dutiesCost: dutiesCost,
+                            standardTariffPercent: standardTariffPercent,
+                            standardTariffCost: standardTariffCost,
+                            reciprocalTariffPercent: reciprocalTariffPercent,
+                            reciprocalTariffCost: reciprocalTariffCost
+                        };
+
+                        components.push(component);
+                    });
+
+                    // Clear edit mode
+                    editingComponentId = null;
+                    submitButton.textContent = 'Add Component';
+                    componentForm.reset();
+
+                    // Re-render
+                    renderComponents();
+                    updateSummary();
+
+                    alert('Data imported successfully! You can now edit the components.');
+                } catch (error) {
+                    console.error('Import error:', error);
+                    alert('Error importing file: ' + error.message);
+                }
+            };
+
+            reader.onerror = function() {
+                alert('Error reading file.');
+            };
+
+            reader.readAsText(file);
+            
+            // Reset file input
+            event.target.value = '';
         }
 
         // Initialize
