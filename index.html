@@ -956,26 +956,6 @@
             event.target.value = '';
         }
 
-        // Handle JSON Import (for embedded PDF data)
-        function handleJsonImport(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    importData(data);
-                } catch (error) {
-                    console.error('JSON import error:', error);
-                    alert('Error importing JSON file: ' + error.message);
-                }
-            };
-
-            reader.onerror = function() {
-                alert('Error reading JSON file.');
-            };
-
-            reader.readAsText(file);
-        }
-
         // Handle PDF Import
         async function handlePdfImport(file) {
             try {
