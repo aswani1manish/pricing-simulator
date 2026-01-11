@@ -15,7 +15,7 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
@@ -30,7 +30,7 @@
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
+            padding: 20px;
             text-align: center;
         }
 
@@ -44,31 +44,31 @@
         }
 
         .header h1 {
-            font-size: 2.5em;
-            margin-bottom: 10px;
+            font-size: 2em;
+            margin-bottom: 8px;
         }
 
         .content {
-            padding: 40px;
+            padding: 25px;
         }
 
         .section {
-            margin-bottom: 30px;
-            padding: 25px;
+            margin-bottom: 20px;
+            padding: 20px;
             background: #f8f9fa;
             border-radius: 10px;
             border: 1px solid #e0e0e0;
         }
 
         .section-title {
-            font-size: 1.5em;
+            font-size: 1.3em;
             color: #667eea;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             font-weight: 600;
         }
 
         .form-group {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
 
         label {
@@ -79,9 +79,10 @@
         }
 
         input[type="text"],
-        input[type="number"] {
+        input[type="number"],
+        select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 2px solid #e0e0e0;
             border-radius: 8px;
             font-size: 16px;
@@ -89,7 +90,8 @@
         }
 
         input[type="text"]:focus,
-        input[type="number"]:focus {
+        input[type="number"]:focus,
+        select:focus {
             outline: none;
             border-color: #667eea;
         }
@@ -103,7 +105,7 @@
         button {
             background: #667eea;
             color: white;
-            padding: 12px 30px;
+            padding: 10px 24px;
             border: none;
             border-radius: 8px;
             font-size: 16px;
@@ -123,8 +125,18 @@
         }
 
         .btn-add {
-            margin-top: 20px;
+            margin-top: 15px;
             width: 100%;
+        }
+        
+        .btn-export {
+            background: #27ae60;
+            margin-top: 15px;
+            width: 100%;
+        }
+        
+        .btn-export:hover {
+            background: #229954;
         }
 
         .btn-remove {
@@ -143,9 +155,9 @@
 
         .component-item {
             background: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             border: 2px solid #e0e0e0;
             position: relative;
         }
@@ -182,9 +194,9 @@
         .summary-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 30px;
+            padding: 20px;
             border-radius: 10px;
-            margin-top: 30px;
+            margin-top: 20px;
         }
 
         .summary-row {
@@ -228,6 +240,15 @@
         </div>
 
         <div class="content">
+            <!-- Product Name Section -->
+            <div class="section">
+                <h2 class="section-title">Product Information</h2>
+                <div class="form-group">
+                    <label for="productName">Finished Product Name *</label>
+                    <input type="text" id="productName" placeholder="Enter product name">
+                </div>
+            </div>
+
             <!-- Component Input Section -->
             <div class="section">
                 <h2 class="section-title">Add Component</h2>
@@ -244,22 +265,42 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="freightCost">Freight Cost ($) *</label>
-                            <input type="number" id="freightCost" step="0.01" min="0" required placeholder="0.00">
+                            <label for="sourceCountry">Source Country *</label>
+                            <select id="sourceCountry" required>
+                                <option value="USA">USA</option>
+                                <option value="China">China</option>
+                                <option value="India">India</option>
+                                <option value="Mexico">Mexico</option>
+                                <option value="Canada">Canada</option>
+                                <option value="Vietnam">Vietnam</option>
+                                <option value="Thailand">Thailand</option>
+                                <option value="South Korea">South Korea</option>
+                                <option value="Japan">Japan</option>
+                                <option value="Germany">Germany</option>
+                                <option value="Italy">Italy</option>
+                                <option value="France">France</option>
+                                <option value="United Kingdom">United Kingdom</option>
+                                <option value="Other">Other</option>
+                            </select>
                         </div>
                     </div>
 
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="bulkAssemblyScrap">Bulk/Assembly/Scrap Cost ($) *</label>
-                            <input type="number" id="bulkAssemblyScrap" step="0.01" min="0" required placeholder="0.00">
+                            <label for="freightCost">Freight Cost ($) *</label>
+                            <input type="number" id="freightCost" step="0.01" min="0" required placeholder="0.00">
                         </div>
 
                         <div class="form-group">
-                            <label for="dutiesCost">Duties Cost ($)</label>
-                            <input type="number" id="dutiesCost" step="0.01" min="0" value="0" placeholder="0.00">
-                            <p class="info-text">Add duties if sourced from outside USA</p>
+                            <label for="bulkAssemblyScrap">Bulk/Assembly/Scrap Cost ($) *</label>
+                            <input type="number" id="bulkAssemblyScrap" step="0.01" min="0" required placeholder="0.00">
                         </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dutiesPercent">Duties (% of Component Cost)</label>
+                        <input type="number" id="dutiesPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                        <p class="info-text">Enter duties percentage if sourced from outside USA</p>
                     </div>
 
                     <button type="submit" class="btn-add">Add Component</button>
@@ -314,9 +355,14 @@
                     <span>DDP Price:</span>
                     <span id="ddpPrice">$0.00</span>
                 </div>
+                <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
             </div>
         </div>
     </div>
+
+    <!-- Include jsPDF library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
 
     <script>
         // Application State
@@ -327,11 +373,13 @@
         const componentForm = document.getElementById('componentForm');
         const componentsList = document.getElementById('componentsList');
         const marginPercentInput = document.getElementById('marginPercent');
+        const exportPdfBtn = document.getElementById('exportPdfBtn');
 
         // Event Listeners
         componentForm.addEventListener('submit', handleAddComponent);
         marginPercentInput.addEventListener('input', updateSummary);
         componentsList.addEventListener('click', handleRemoveClick);
+        exportPdfBtn.addEventListener('click', exportToPdf);
 
         // Add Component Handler
         function handleAddComponent(e) {
@@ -350,13 +398,19 @@
                 return;
             }
 
+            const componentCost = parseFloat(document.getElementById('componentCost').value) || 0;
+            const dutiesPercent = parseFloat(document.getElementById('dutiesPercent').value) || 0;
+            const dutiesCost = (componentCost * dutiesPercent) / 100;
+
             const component = {
                 id: nextComponentId++,
                 name: nameValue,
-                componentCost: parseFloat(document.getElementById('componentCost').value) || 0,
+                sourceCountry: document.getElementById('sourceCountry').value,
+                componentCost: componentCost,
                 freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
                 bulkAssemblyScrap: parseFloat(document.getElementById('bulkAssemblyScrap').value) || 0,
-                dutiesCost: parseFloat(document.getElementById('dutiesCost').value) || 0
+                dutiesPercent: dutiesPercent,
+                dutiesCost: dutiesCost
             };
 
             components.push(component);
@@ -402,7 +456,7 @@
 
                 const componentNameDiv = document.createElement('div');
                 componentNameDiv.className = 'component-name';
-                componentNameDiv.textContent = component.name; // Safe from XSS
+                componentNameDiv.textContent = component.name + ' (from ' + component.sourceCountry + ')'; // Safe from XSS
 
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'btn-remove';
@@ -426,10 +480,20 @@
                     return detailDiv;
                 };
 
+                const createDetailWithPercent = (label, percent, value) => {
+                    const detailDiv = document.createElement('div');
+                    detailDiv.className = 'component-detail';
+                    const strong = document.createElement('strong');
+                    strong.textContent = label + ':';
+                    detailDiv.appendChild(strong);
+                    detailDiv.appendChild(document.createTextNode(' ' + percent.toFixed(2) + '% ($' + value.toFixed(2) + ')'));
+                    return detailDiv;
+                };
+
                 componentDetails.appendChild(createDetail('Component Cost', component.componentCost));
                 componentDetails.appendChild(createDetail('Freight Cost', component.freightCost));
                 componentDetails.appendChild(createDetail('Bulk/Assembly/Scrap', component.bulkAssemblyScrap));
-                componentDetails.appendChild(createDetail('Duties Cost', component.dutiesCost));
+                componentDetails.appendChild(createDetailWithPercent('Duties', component.dutiesPercent, component.dutiesCost));
                 componentDetails.appendChild(createDetail('Total', 
                     component.componentCost + component.freightCost + component.bulkAssemblyScrap + component.dutiesCost));
 
@@ -462,6 +526,110 @@
             document.getElementById('marginPercentDisplay').textContent = marginPercent.toFixed(2);
             document.getElementById('marginAmount').textContent = `$${marginAmount.toFixed(2)}`;
             document.getElementById('ddpPrice').textContent = `$${ddpPrice.toFixed(2)}`;
+        }
+
+        // Export to PDF
+        function exportToPdf() {
+            if (components.length === 0) {
+                alert('Please add at least one component before exporting.');
+                return;
+            }
+
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+
+            // Get product name
+            const productName = document.getElementById('productName').value.trim() || 'Untitled Product';
+
+            // Add title
+            doc.setFontSize(18);
+            doc.setTextColor(102, 126, 234);
+            doc.text('Innovative Beauty Group', 105, 15, { align: 'center' });
+            
+            doc.setFontSize(14);
+            doc.setTextColor(0, 0, 0);
+            doc.text('DDP Price Calculator - Pricing Breakdown', 105, 25, { align: 'center' });
+
+            // Add product name
+            doc.setFontSize(12);
+            doc.text('Product: ' + productName, 14, 35);
+            doc.text('Date: ' + new Date().toLocaleDateString(), 14, 42);
+
+            // Prepare component data
+            const componentData = components.map(c => [
+                c.name,
+                c.sourceCountry,
+                '$' + c.componentCost.toFixed(2),
+                '$' + c.freightCost.toFixed(2),
+                '$' + c.bulkAssemblyScrap.toFixed(2),
+                c.dutiesPercent.toFixed(2) + '%',
+                '$' + c.dutiesCost.toFixed(2),
+                '$' + (c.componentCost + c.freightCost + c.bulkAssemblyScrap + c.dutiesCost).toFixed(2)
+            ]);
+
+            // Add component table
+            doc.autoTable({
+                startY: 50,
+                head: [['Component', 'Source', 'Component Cost', 'Freight', 'Bulk/Asm/Scrap', 'Duties %', 'Duties $', 'Total']],
+                body: componentData,
+                theme: 'striped',
+                headStyles: { fillColor: [102, 126, 234] },
+                styles: { fontSize: 9 },
+                columnStyles: {
+                    0: { cellWidth: 35 },
+                    1: { cellWidth: 25 },
+                    2: { cellWidth: 22 },
+                    3: { cellWidth: 20 },
+                    4: { cellWidth: 22 },
+                    5: { cellWidth: 18 },
+                    6: { cellWidth: 20 },
+                    7: { cellWidth: 20 }
+                }
+            });
+
+            // Calculate summary values
+            const totalComponentCost = components.reduce((sum, c) => sum + c.componentCost, 0);
+            const totalFreightCost = components.reduce((sum, c) => sum + c.freightCost, 0);
+            const totalBulkCost = components.reduce((sum, c) => sum + c.bulkAssemblyScrap, 0);
+            const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
+            const subtotal = totalComponentCost + totalFreightCost + totalBulkCost + totalDutiesCost;
+            const marginPercent = parseFloat(marginPercentInput.value) || 0;
+            const marginAmount = (subtotal * marginPercent) / 100;
+            const ddpPrice = subtotal + marginAmount;
+
+            // Add summary table
+            const summaryData = [
+                ['Total Component Costs', '$' + totalComponentCost.toFixed(2)],
+                ['Total Freight Costs', '$' + totalFreightCost.toFixed(2)],
+                ['Total Bulk/Assembly/Scrap Costs', '$' + totalBulkCost.toFixed(2)],
+                ['Total Duties Costs', '$' + totalDutiesCost.toFixed(2)],
+                ['Subtotal (All Costs)', '$' + subtotal.toFixed(2)],
+                ['Margin (' + marginPercent.toFixed(2) + '%)', '$' + marginAmount.toFixed(2)],
+                ['DDP Price', '$' + ddpPrice.toFixed(2)]
+            ];
+
+            doc.autoTable({
+                startY: doc.lastAutoTable.finalY + 10,
+                body: summaryData,
+                theme: 'plain',
+                styles: { fontSize: 11 },
+                columnStyles: {
+                    0: { fontStyle: 'bold', cellWidth: 140 },
+                    1: { halign: 'right', cellWidth: 42 }
+                },
+                didParseCell: function(data) {
+                    if (data.row.index === summaryData.length - 1) {
+                        data.cell.styles.fillColor = [102, 126, 234];
+                        data.cell.styles.textColor = [255, 255, 255];
+                        data.cell.styles.fontStyle = 'bold';
+                        data.cell.styles.fontSize = 13;
+                    }
+                }
+            });
+
+            // Save PDF
+            const fileName = productName.replace(/[^a-z0-9]/gi, '_') + '_pricing.pdf';
+            doc.save(fileName);
         }
 
         // Initialize
