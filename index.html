@@ -761,8 +761,8 @@
                     1: { halign: 'right', cellWidth: 42 }
                 },
                 didParseCell: function(data) {
-                    // Highlight Total Price row (index 8)
-                    if (data.section === 'body' && data.row.index === 8) {
+                    // Highlight Total Price row based on content
+                    if (data.section === 'body' && data.row.raw[0].includes('Total Price')) {
                         data.cell.styles.fillColor = [102, 126, 234];
                         data.cell.styles.textColor = [255, 255, 255];
                         data.cell.styles.fontStyle = 'bold';
