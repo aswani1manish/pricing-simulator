@@ -140,6 +140,17 @@
             background: #229954;
         }
 
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-row button {
+            flex: 1;
+            margin-top: 0;
+        }
+
         .btn-remove {
             background: #e74c3c;
             padding: 6px 12px;
@@ -415,8 +426,10 @@
                     <span>Total Margin (<span id="totalMarginPercentDisplay">0.000</span>%):</span>
                     <span id="totalMarginAmount">$0.000</span>
                 </div>
-                <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
-                <button id="importBtn" class="btn-export" style="background: #e67e22; margin-top: 5px;">Import PDF</button>
+                <div class="button-row">
+                    <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
+                    <button id="importBtn" class="btn-export" style="background: #e67e22;">Import PDF</button>
+                </div>
                 <input type="file" id="importFileInput" accept=".pdf" style="display: none;">
             </div>
         </div>
