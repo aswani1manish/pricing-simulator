@@ -256,11 +256,11 @@
                     </div>
                     <div class="form-group">
                         <label for="freightOutCost">Freight Out Cost ($)</label>
-                        <input type="number" id="freightOutCost" step="0.01" min="0" value="0" placeholder="0.00">
+                        <input type="number" id="freightOutCost" step="0.01" min="0"  placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="marginPercent">Expected Margin (%) *</label>
-                        <input type="number" id="marginPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                        <input type="number" id="marginPercent" step="0.01" min="0"  placeholder="0.00">
                     </div>
                     <div class="form-group">
                         <label for="reciprocalMarginPercent">Reciprocal Tariff Margin (%)</label>
@@ -333,13 +333,13 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="dutiesPercent">Duties (% of Component Cost)</label>
-                            <input type="number" id="dutiesPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                            <input type="number" id="dutiesPercent" step="0.01" min="0"  placeholder="0.00">
                             <p class="info-text">Applied to component cost only</p>
                         </div>
 
                         <div class="form-group">
                             <label for="standardTariffPercent">Standard Tariff (% of Component Cost)</label>
-                            <input type="number" id="standardTariffPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                            <input type="number" id="standardTariffPercent" step="0.01" min="0"  placeholder="0.00">
                             <p class="info-text">Applied to component cost only</p>
                         </div>
 
@@ -398,8 +398,10 @@
                     <span id="reciprocalMarginAmount">$0.00</span>
                 </div>
                 <div class="summary-row">
+                    <b>
                     <span>Total Price:</span>
                     <span id="ddpPrice">$0.00</span>
+                    </b>
                 </div>
                 <div class="summary-row">
                     <span>Total Margin (<span id="totalMarginPercentDisplay">0.00</span>%):</span>
