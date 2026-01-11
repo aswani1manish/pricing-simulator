@@ -243,9 +243,15 @@
             <!-- Product Name Section -->
             <div class="section">
                 <h2 class="section-title">Product Information</h2>
-                <div class="form-group">
-                    <label for="productName">Finished Product Name *</label>
-                    <input type="text" id="productName" placeholder="Enter product name">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="productName">Finished Product Name *</label>
+                        <input type="text" id="productName" placeholder="Enter product name">
+                    </div>
+                    <div class="form-group">
+                        <label for="marginPercent">Expected Margin (%) *</label>
+                        <input type="number" id="marginPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                    </div>
                 </div>
             </div>
 
@@ -253,15 +259,10 @@
             <div class="section">
                 <h2 class="section-title">Add Component</h2>
                 <form id="componentForm">
-                    <div class="form-group">
-                        <label for="componentName">Component Name *</label>
-                        <input type="text" id="componentName" required placeholder="Enter component name">
-                    </div>
-
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="componentCost">Component Cost ($) *</label>
-                            <input type="number" id="componentCost" step="0.01" min="0" required placeholder="0.00">
+                            <label for="componentName">Component Name *</label>
+                            <input type="text" id="componentName" required placeholder="Enter component name">
                         </div>
 
                         <div class="form-group">
@@ -287,6 +288,11 @@
 
                     <div class="form-row">
                         <div class="form-group">
+                            <label for="componentCost">Component Cost ($) *</label>
+                            <input type="number" id="componentCost" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
                             <label for="freightCost">Freight Cost ($) *</label>
                             <input type="number" id="freightCost" step="0.01" min="0" required placeholder="0.00">
                         </div>
@@ -295,12 +301,12 @@
                             <label for="bulkAssemblyScrap">Bulk/Assembly/Scrap Cost ($) *</label>
                             <input type="number" id="bulkAssemblyScrap" step="0.01" min="0" required placeholder="0.00">
                         </div>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="dutiesPercent">Duties (% of Component Cost)</label>
-                        <input type="number" id="dutiesPercent" step="0.01" min="0" value="0" placeholder="0.00">
-                        <p class="info-text">Enter duties percentage if sourced from outside USA</p>
+                        <div class="form-group">
+                            <label for="dutiesPercent">Duties (% of Component Cost)</label>
+                            <input type="number" id="dutiesPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                            <p class="info-text">Enter duties percentage if sourced from outside USA</p>
+                        </div>
                     </div>
 
                     <button type="submit" class="btn-add">Add Component</button>
@@ -312,15 +318,6 @@
                 <h2 class="section-title">Components Added</h2>
                 <div id="componentsList" class="components-list">
                     <div class="empty-state">No components added yet. Add a component above to get started.</div>
-                </div>
-            </div>
-
-            <!-- Margin Input Section -->
-            <div class="section">
-                <h2 class="section-title">Product Margin</h2>
-                <div class="form-group">
-                    <label for="marginPercent">Expected Margin (%) *</label>
-                    <input type="number" id="marginPercent" step="0.01" min="0" value="0" placeholder="0.00">
                 </div>
             </div>
 
