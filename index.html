@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pricing Simulator - Innovative Beauty Group</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header img {
+            max-width: 200px;
+            height: auto;
+            margin-bottom: 15px;
+            background: white;
+            padding: 10px;
+            border-radius: 10px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .section-title {
+            font-size: 1.5em;
+            color: #667eea;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+        }
+
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .btn-add {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        .btn-remove {
+            background: #e74c3c;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-remove:hover {
+            background: #c0392b;
+        }
+
+        .components-list {
+            margin-top: 20px;
+        }
+
+        .component-item {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            position: relative;
+        }
+
+        .component-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .component-name {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #667eea;
+        }
+
+        .component-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .component-detail {
+            font-size: 0.9em;
+            color: #666;
+        }
+
+        .component-detail strong {
+            color: #333;
+        }
+
+        .summary-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-top: 30px;
+        }
+
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 1.1em;
+        }
+
+        .summary-row:last-child {
+            border-bottom: none;
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-top: 10px;
+            padding-top: 20px;
+            border-top: 2px solid white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-style: italic;
+        }
+
+        .info-text {
+            font-size: 0.9em;
+            color: #666;
+            margin-top: 5px;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="https://innovativebeautygroup.com/wp-content/uploads/2025/10/logo.webp" alt="Innovative Beauty Group Logo">
+            <h1>Innovative Beauty Group</h1>
+            <p>DDP Price Calculator</p>
+        </div>
+
+        <div class="content">
+            <!-- Component Input Section -->
+            <div class="section">
+                <h2 class="section-title">Add Component</h2>
+                <form id="componentForm">
+                    <div class="form-group">
+                        <label for="componentName">Component Name *</label>
+                        <input type="text" id="componentName" required placeholder="Enter component name">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="componentCost">Component Cost ($) *</label>
+                            <input type="number" id="componentCost" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="freightCost">Freight Cost ($) *</label>
+                            <input type="number" id="freightCost" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="bulkAssemblyScrap">Bulk/Assembly/Scrap Cost ($) *</label>
+                            <input type="number" id="bulkAssemblyScrap" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="dutiesCost">Duties Cost ($)</label>
+                            <input type="number" id="dutiesCost" step="0.01" min="0" value="0" placeholder="0.00">
+                            <p class="info-text">Add duties if sourced from outside USA</p>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-add">Add Component</button>
+                </form>
+            </div>
+
+            <!-- Components List Section -->
+            <div class="section">
+                <h2 class="section-title">Components Added</h2>
+                <div id="componentsList" class="components-list">
+                    <div class="empty-state">No components added yet. Add a component above to get started.</div>
+                </div>
+            </div>
+
+            <!-- Margin Input Section -->
+            <div class="section">
+                <h2 class="section-title">Product Margin</h2>
+                <div class="form-group">
+                    <label for="marginPercent">Expected Margin (%) *</label>
+                    <input type="number" id="marginPercent" step="0.01" min="0" value="0" placeholder="0.00">
+                </div>
+            </div>
+
+            <!-- Price Summary Section -->
+            <div class="summary-section">
+                <h2 class="section-title" style="color: white; margin-bottom: 20px;">Price Summary</h2>
+                <div class="summary-row">
+                    <span>Total Component Costs:</span>
+                    <span id="totalComponentCost">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total Freight Costs:</span>
+                    <span id="totalFreightCost">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total Bulk/Assembly/Scrap Costs:</span>
+                    <span id="totalBulkCost">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total Duties Costs:</span>
+                    <span id="totalDutiesCost">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Subtotal (All Costs):</span>
+                    <span id="subtotal">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>Margin (<span id="marginPercentDisplay">0</span>%):</span>
+                    <span id="marginAmount">$0.00</span>
+                </div>
+                <div class="summary-row">
+                    <span>DDP Price:</span>
+                    <span id="ddpPrice">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let components = [];
+        let nextComponentId = 1;
+
+        // DOM Elements
+        const componentForm = document.getElementById('componentForm');
+        const componentsList = document.getElementById('componentsList');
+        const marginPercentInput = document.getElementById('marginPercent');
+
+        // Event Listeners
+        componentForm.addEventListener('submit', handleAddComponent);
+        marginPercentInput.addEventListener('input', updateSummary);
+        componentsList.addEventListener('click', handleRemoveClick);
+
+        // Add Component Handler
+        function handleAddComponent(e) {
+            e.preventDefault();
+
+            const nameValue = document.getElementById('componentName').value.trim();
+            
+            // Validate component name
+            if (!nameValue || nameValue.length === 0) {
+                alert('Please enter a component name.');
+                return;
+            }
+            
+            if (nameValue.length > 100) {
+                alert('Component name is too long. Please limit to 100 characters.');
+                return;
+            }
+
+            const component = {
+                id: nextComponentId++,
+                name: nameValue,
+                componentCost: parseFloat(document.getElementById('componentCost').value) || 0,
+                freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
+                bulkAssemblyScrap: parseFloat(document.getElementById('bulkAssemblyScrap').value) || 0,
+                dutiesCost: parseFloat(document.getElementById('dutiesCost').value) || 0
+            };
+
+            components.push(component);
+            componentForm.reset();
+            renderComponents();
+            updateSummary();
+        }
+
+        // Remove Component Handler
+        function handleRemoveClick(e) {
+            if (e.target.classList.contains('btn-remove')) {
+                const id = parseInt(e.target.dataset.componentId, 10);
+                
+                // Validate that we got a valid ID
+                if (isNaN(id)) {
+                    console.error('Invalid component ID');
+                    return;
+                }
+                
+                components = components.filter(c => c.id !== id);
+                renderComponents();
+                updateSummary();
+            }
+        }
+
+        // Render Components List
+        function renderComponents() {
+            if (components.length === 0) {
+                componentsList.innerHTML = '<div class="empty-state">No components added yet. Add a component above to get started.</div>';
+                return;
+            }
+
+            // Clear existing components
+            componentsList.innerHTML = '';
+
+            // Create and append each component using DOM manipulation for better security
+            components.forEach(component => {
+                const componentItem = document.createElement('div');
+                componentItem.className = 'component-item';
+
+                const componentHeader = document.createElement('div');
+                componentHeader.className = 'component-header';
+
+                const componentNameDiv = document.createElement('div');
+                componentNameDiv.className = 'component-name';
+                componentNameDiv.textContent = component.name; // Safe from XSS
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'btn-remove';
+                removeBtn.dataset.componentId = component.id;
+                removeBtn.textContent = 'Remove';
+
+                componentHeader.appendChild(componentNameDiv);
+                componentHeader.appendChild(removeBtn);
+
+                const componentDetails = document.createElement('div');
+                componentDetails.className = 'component-details';
+
+                // Helper function to create detail div
+                const createDetail = (label, value) => {
+                    const detailDiv = document.createElement('div');
+                    detailDiv.className = 'component-detail';
+                    const strong = document.createElement('strong');
+                    strong.textContent = label + ':';
+                    detailDiv.appendChild(strong);
+                    detailDiv.appendChild(document.createTextNode(' $' + value.toFixed(2)));
+                    return detailDiv;
+                };
+
+                componentDetails.appendChild(createDetail('Component Cost', component.componentCost));
+                componentDetails.appendChild(createDetail('Freight Cost', component.freightCost));
+                componentDetails.appendChild(createDetail('Bulk/Assembly/Scrap', component.bulkAssemblyScrap));
+                componentDetails.appendChild(createDetail('Duties Cost', component.dutiesCost));
+                componentDetails.appendChild(createDetail('Total', 
+                    component.componentCost + component.freightCost + component.bulkAssemblyScrap + component.dutiesCost));
+
+                componentItem.appendChild(componentHeader);
+                componentItem.appendChild(componentDetails);
+                componentsList.appendChild(componentItem);
+            });
+        }
+
+        // Update Price Summary
+        function updateSummary() {
+            // Calculate totals
+            const totalComponentCost = components.reduce((sum, c) => sum + c.componentCost, 0);
+            const totalFreightCost = components.reduce((sum, c) => sum + c.freightCost, 0);
+            const totalBulkCost = components.reduce((sum, c) => sum + c.bulkAssemblyScrap, 0);
+            const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
+            const subtotal = totalComponentCost + totalFreightCost + totalBulkCost + totalDutiesCost;
+
+            // Calculate margin
+            const marginPercent = parseFloat(marginPercentInput.value) || 0;
+            const marginAmount = (subtotal * marginPercent) / 100;
+            const ddpPrice = subtotal + marginAmount;
+
+            // Update DOM
+            document.getElementById('totalComponentCost').textContent = `$${totalComponentCost.toFixed(2)}`;
+            document.getElementById('totalFreightCost').textContent = `$${totalFreightCost.toFixed(2)}`;
+            document.getElementById('totalBulkCost').textContent = `$${totalBulkCost.toFixed(2)}`;
+            document.getElementById('totalDutiesCost').textContent = `$${totalDutiesCost.toFixed(2)}`;
+            document.getElementById('subtotal').textContent = `$${subtotal.toFixed(2)}`;
+            document.getElementById('marginPercentDisplay').textContent = marginPercent.toFixed(2);
+            document.getElementById('marginAmount').textContent = `$${marginAmount.toFixed(2)}`;
+            document.getElementById('ddpPrice').textContent = `$${ddpPrice.toFixed(2)}`;
+        }
+
+        // Initialize
+        updateSummary();
+    </script>
+</body>
+</html>
