@@ -933,7 +933,7 @@
             // Add visible note about import capability
             doc.setTextColor(100, 100, 100);
             doc.setFontSize(8);
-            doc.text('This PDF contains embedded data for import. Use "Import Data (JSON)" to reload.', 14, yPosition + 5);
+            doc.text('This PDF contains embedded data for import. Use "Import Data (PDF/JSON)" to reload.', 14, yPosition + 5);
 
             // Save PDF
             const fileName = productName.replace(/[^a-z0-9]/gi, '_') + '_pricing.pdf';
@@ -1045,15 +1045,23 @@
                 // Extract text items and look for our DATA: marker
                 let fullText = '';
                 textContent.items.forEach(item => {
-                    fullText += item.str + ' ';
+                    fullText += item.str;
                 });
 
                 // Look for the DATA: marker and extract JSON
-                const dataMatch = fullText.match(/DATA:(\{.*\})/);
-                if (dataMatch && dataMatch[1]) {
-                    const jsonString = dataMatch[1].trim();
-                    const data = JSON.parse(jsonString);
-                    importData(data);
+                // Find the start of JSON data after DATA: marker
+                const dataIndex = fullText.indexOf('DATA:{');
+                if (dataIndex !== -1) {
+                    const jsonStart = dataIndex + 5; // Skip "DATA:"
+                    const jsonString = fullText.substring(jsonStart);
+                    
+                    // Try to parse the JSON - if it fails, the data is corrupted
+                    try {
+                        const data = JSON.parse(jsonString);
+                        importData(data);
+                    } catch (parseError) {
+                        alert('Could not parse embedded data. The PDF may be corrupted.');
+                    }
                 } else {
                     alert('No embedded data found in this PDF. Please use a PDF exported from this application.');
                 }
@@ -1067,8 +1075,18 @@
         function importData(data) {
             try {
                 // Validate data structure
-                if (!data.productInfo || !data.components) {
-                    alert('Invalid data file format.');
+                if (!data || typeof data !== 'object') {
+                    alert('Invalid data file format: not a valid object.');
+                    return;
+                }
+                
+                if (!data.productInfo || typeof data.productInfo !== 'object') {
+                    alert('Invalid data file format: missing or invalid productInfo.');
+                    return;
+                }
+                
+                if (!data.components || !Array.isArray(data.components)) {
+                    alert('Invalid data file format: components must be an array.');
                     return;
                 }
 
