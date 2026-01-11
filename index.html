@@ -416,6 +416,9 @@
                     <span id="totalMarginAmount">$0.000</span>
                 </div>
                 <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
+                <button id="exportJsonBtn" class="btn-export" style="background: #2980b9; margin-top: 5px;">Export Data (JSON)</button>
+                <button id="importBtn" class="btn-export" style="background: #e67e22; margin-top: 5px;">Import Data (PDF/JSON)</button>
+                <input type="file" id="importFileInput" accept=".json,.pdf" style="display: none;">
             </div>
         </div>
     </div>
@@ -423,6 +426,8 @@
     <!-- Include jsPDF library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
+    <!-- Include PDF.js for PDF parsing -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
     <script>
         // Application State
@@ -437,7 +442,15 @@
         const reciprocalMarginPercentInput = document.getElementById('reciprocalMarginPercent');
         const freightOutCostInput = document.getElementById('freightOutCost');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
+        const exportJsonBtn = document.getElementById('exportJsonBtn');
+        const importBtn = document.getElementById('importBtn');
+        const importFileInput = document.getElementById('importFileInput');
         const submitButton = componentForm.querySelector('button[type="submit"]');
+
+        // Configure PDF.js worker
+        if (typeof pdfjsLib !== 'undefined') {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        }
 
         // Event Listeners
         componentForm.addEventListener('submit', handleAddComponent);
@@ -446,6 +459,9 @@
         freightOutCostInput.addEventListener('input', updateSummary);
         componentsList.addEventListener('click', handleComponentActions);
         exportPdfBtn.addEventListener('click', exportToPdf);
+        exportJsonBtn.addEventListener('click', exportToJson);
+        importBtn.addEventListener('click', () => importFileInput.click());
+        importFileInput.addEventListener('change', handleImportFile);
 
         // Add/Update Component Handler
         function handleAddComponent(e) {
@@ -880,9 +896,265 @@
                 }
             });
 
+            // Embed JSON data in PDF as metadata
+            const jsonData = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                productInfo: {
+                    customerName: customerName,
+                    productName: productName,
+                    freightOutCost: freightOutCost,
+                    marginPercent: marginPercent,
+                    reciprocalMarginPercent: reciprocalMarginPercent
+                },
+                components: components.map(c => ({
+                    name: c.name,
+                    type: c.type,
+                    vendorName: c.vendorName,
+                    sourceCountry: c.sourceCountry,
+                    componentCost: c.componentCost,
+                    freightCost: c.freightCost,
+                    scrapPercent: c.scrapPercent,
+                    dutiesPercent: c.dutiesPercent,
+                    standardTariffPercent: c.standardTariffPercent,
+                    reciprocalTariffPercent: c.reciprocalTariffPercent
+                }))
+            };
+
+            // Add a hidden text element containing JSON data at the end of the PDF
+            // This will be invisible but can be extracted for import
+            const jsonString = JSON.stringify(jsonData);
+            const yPosition = doc.lastAutoTable.finalY + 30;
+            
+            doc.setFontSize(6);
+            doc.setTextColor(255, 255, 255); // White text (invisible on white background)
+            doc.text('DATA:' + jsonString, 14, yPosition);
+            
+            // Add visible note about import capability
+            doc.setTextColor(100, 100, 100);
+            doc.setFontSize(8);
+            doc.text('This PDF contains embedded data for import. Use "Import Data (PDF/JSON)" to reload.', 14, yPosition + 5);
+
             // Save PDF
             const fileName = productName.replace(/[^a-z0-9]/gi, '_') + '_pricing.pdf';
             doc.save(fileName);
+        }
+
+        // Export to JSON
+        function exportToJson() {
+            const customerName = document.getElementById('customerName').value.trim();
+            const productName = document.getElementById('productName').value.trim();
+            const freightOutCost = parseFloat(freightOutCostInput.value) || 0;
+            const marginPercent = parseFloat(marginPercentInput.value) || 0;
+            const reciprocalMarginPercent = parseFloat(reciprocalMarginPercentInput.value) || 0;
+
+            const data = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                productInfo: {
+                    customerName: customerName,
+                    productName: productName,
+                    freightOutCost: freightOutCost,
+                    marginPercent: marginPercent,
+                    reciprocalMarginPercent: reciprocalMarginPercent
+                },
+                components: components.map(c => ({
+                    name: c.name,
+                    type: c.type,
+                    vendorName: c.vendorName,
+                    sourceCountry: c.sourceCountry,
+                    componentCost: c.componentCost,
+                    freightCost: c.freightCost,
+                    scrapPercent: c.scrapPercent,
+                    dutiesPercent: c.dutiesPercent,
+                    standardTariffPercent: c.standardTariffPercent,
+                    reciprocalTariffPercent: c.reciprocalTariffPercent
+                }))
+            };
+
+            const jsonStr = JSON.stringify(data, null, 2);
+            const blob = new Blob([jsonStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            const fileName = (productName || 'pricing_data').replace(/[^a-z0-9]/gi, '_') + '.json';
+            a.download = fileName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Handle Import File (PDF or JSON)
+        function handleImportFile(event) {
+            const file = event.target.files[0];
+            if (!file) {
+                return;
+            }
+
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            if (fileExtension === 'json') {
+                handleJsonImport(file);
+            } else if (fileExtension === 'pdf') {
+                handlePdfImport(file);
+            } else {
+                alert('Unsupported file format. Please select a PDF or JSON file.');
+            }
+
+            // Reset file input
+            event.target.value = '';
+        }
+
+        // Handle JSON Import
+        function handleJsonImport(file) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    importData(data);
+                } catch (error) {
+                    console.error('JSON import error:', error);
+                    alert('Error importing JSON file: ' + error.message);
+                }
+            };
+
+            reader.onerror = function() {
+                alert('Error reading JSON file.');
+            };
+
+            reader.readAsText(file);
+        }
+
+        // Handle PDF Import
+        async function handlePdfImport(file) {
+            try {
+                if (typeof pdfjsLib === 'undefined') {
+                    alert('PDF.js library not loaded. Please refresh the page and try again.');
+                    return;
+                }
+
+                const arrayBuffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+                
+                // Get the last page where we embedded the data
+                const lastPageNum = pdf.numPages;
+                const page = await pdf.getPage(lastPageNum);
+                const textContent = await page.getTextContent();
+                
+                // Extract text items and look for our DATA: marker
+                let fullText = '';
+                textContent.items.forEach(item => {
+                    fullText += item.str;
+                });
+
+                // Look for the DATA: marker and extract JSON
+                // Find the start of JSON data after DATA: marker
+                const dataIndex = fullText.indexOf('DATA:{');
+                if (dataIndex !== -1) {
+                    const jsonStart = dataIndex + 5; // Skip "DATA:"
+                    const jsonString = fullText.substring(jsonStart);
+                    
+                    // Try to parse the JSON - if it fails, the data is corrupted
+                    try {
+                        const data = JSON.parse(jsonString);
+                        importData(data);
+                    } catch (parseError) {
+                        alert('Could not parse embedded data. The PDF may be corrupted.');
+                    }
+                } else {
+                    alert('No embedded data found in this PDF. Please use a PDF exported from this application.');
+                }
+            } catch (error) {
+                console.error('PDF import error:', error);
+                alert('Error importing PDF file: ' + error.message);
+            }
+        }
+
+        // Import data into application
+        function importData(data) {
+            try {
+                // Validate data structure
+                if (!data || typeof data !== 'object') {
+                    alert('Invalid data file format: not a valid object.');
+                    return;
+                }
+                
+                if (!data.productInfo || typeof data.productInfo !== 'object') {
+                    alert('Invalid data file format: missing or invalid productInfo.');
+                    return;
+                }
+                
+                if (!data.components || !Array.isArray(data.components)) {
+                    alert('Invalid data file format: components must be an array.');
+                    return;
+                }
+
+                // Confirm import
+                const confirmMsg = 'This will replace all current data. Do you want to continue?';
+                if (!confirm(confirmMsg)) {
+                    return;
+                }
+
+                // Import product info
+                document.getElementById('customerName').value = data.productInfo.customerName || '';
+                document.getElementById('productName').value = data.productInfo.productName || '';
+                freightOutCostInput.value = data.productInfo.freightOutCost || 0;
+                marginPercentInput.value = data.productInfo.marginPercent || 0;
+                reciprocalMarginPercentInput.value = data.productInfo.reciprocalMarginPercent || 0;
+
+                // Clear existing components
+                components = [];
+                nextComponentId = 1;
+
+                // Import components
+                data.components.forEach(compData => {
+                    const componentCost = parseFloat(compData.componentCost) || 0;
+                    const scrapPercent = parseFloat(compData.scrapPercent) || 0;
+                    const dutiesPercent = parseFloat(compData.dutiesPercent) || 0;
+                    const standardTariffPercent = parseFloat(compData.standardTariffPercent) || 0;
+                    const reciprocalTariffPercent = parseFloat(compData.reciprocalTariffPercent) || 0;
+                    
+                    const scrapCost = (componentCost * scrapPercent) / 100;
+                    const dutiesCost = (componentCost * dutiesPercent) / 100;
+                    const standardTariffCost = (componentCost * standardTariffPercent) / 100;
+                    const reciprocalTariffCost = ((componentCost + scrapCost) * reciprocalTariffPercent) / 100;
+
+                    const component = {
+                        id: nextComponentId++,
+                        name: compData.name,
+                        type: compData.type,
+                        vendorName: compData.vendorName || '',
+                        sourceCountry: compData.sourceCountry,
+                        componentCost: componentCost,
+                        freightCost: parseFloat(compData.freightCost) || 0,
+                        scrapPercent: scrapPercent,
+                        scrapCost: scrapCost,
+                        dutiesPercent: dutiesPercent,
+                        dutiesCost: dutiesCost,
+                        standardTariffPercent: standardTariffPercent,
+                        standardTariffCost: standardTariffCost,
+                        reciprocalTariffPercent: reciprocalTariffPercent,
+                        reciprocalTariffCost: reciprocalTariffCost
+                    };
+
+                    components.push(component);
+                });
+
+                // Clear edit mode
+                editingComponentId = null;
+                submitButton.textContent = 'Add Component';
+                componentForm.reset();
+
+                // Re-render
+                renderComponents();
+                updateSummary();
+
+                alert('Data imported successfully! You can now edit the components.');
+            } catch (error) {
+                console.error('Import error:', error);
+                alert('Error importing data: ' + error.message);
+            }
         }
 
         // Initialize
