@@ -325,8 +325,14 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="bulkAssemblyScrap">Bulk/Assembly/Scrap Cost ($) *</label>
-                            <input type="number" id="bulkAssemblyScrap" step="0.01" min="0" required placeholder="0.00">
+                            <label for="bulkAssembly">Bulk Assembly Cost ($) *</label>
+                            <input type="number" id="bulkAssembly" step="0.01" min="0" required placeholder="0.00">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="scrapPercent">Scrap (% of Component Cost) *</label>
+                            <input type="number" id="scrapPercent" step="0.01" min="0" required placeholder="0.00">
+                            <p class="info-text">Applied to component cost only</p>
                         </div>
                     </div>
 
@@ -458,10 +464,12 @@
             const dutiesPercent = parseFloat(document.getElementById('dutiesPercent').value) || 0;
             const standardTariffPercent = parseFloat(document.getElementById('standardTariffPercent').value) || 0;
             const reciprocalTariffPercent = parseFloat(document.getElementById('reciprocalTariffPercent').value) || 0;
+            const scrapPercent = parseFloat(document.getElementById('scrapPercent').value) || 0;
             
             const dutiesCost = (componentCost * dutiesPercent) / 100;
             const standardTariffCost = (componentCost * standardTariffPercent) / 100;
             const reciprocalTariffCost = (componentCost * reciprocalTariffPercent) / 100;
+            const scrapCost = (componentCost * scrapPercent) / 100;
 
             const component = {
                 id: nextComponentId++,
@@ -471,7 +479,9 @@
                 sourceCountry: document.getElementById('sourceCountry').value,
                 componentCost: componentCost,
                 freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
-                bulkAssemblyScrap: parseFloat(document.getElementById('bulkAssemblyScrap').value) || 0,
+                bulkAssembly: parseFloat(document.getElementById('bulkAssembly').value) || 0,
+                scrapPercent: scrapPercent,
+                scrapCost: scrapCost,
                 dutiesPercent: dutiesPercent,
                 dutiesCost: dutiesCost,
                 standardTariffPercent: standardTariffPercent,
@@ -563,12 +573,13 @@
                 }
                 componentDetails.appendChild(createDetail('Component Cost', '$' + component.componentCost.toFixed(2)));
                 componentDetails.appendChild(createDetail('Freight Cost', '$' + component.freightCost.toFixed(2)));
-                componentDetails.appendChild(createDetail('Bulk/Assembly/Scrap', '$' + component.bulkAssemblyScrap.toFixed(2)));
+                componentDetails.appendChild(createDetail('Bulk Assembly', '$' + component.bulkAssembly.toFixed(2)));
+                componentDetails.appendChild(createDetailWithPercent('Scrap', component.scrapPercent, component.scrapCost));
                 componentDetails.appendChild(createDetailWithPercent('Duties', component.dutiesPercent, component.dutiesCost));
                 componentDetails.appendChild(createDetailWithPercent('Standard Tariff', component.standardTariffPercent, component.standardTariffCost));
                 componentDetails.appendChild(createDetailWithPercent('Reciprocal Tariff', component.reciprocalTariffPercent, component.reciprocalTariffCost));
                 componentDetails.appendChild(createDetail('Total', '$' + 
-                    (component.componentCost + component.freightCost + component.bulkAssemblyScrap + 
+                    (component.componentCost + component.freightCost + component.bulkAssembly + component.scrapCost + 
                      component.dutiesCost + component.standardTariffCost + component.reciprocalTariffCost).toFixed(2)));
 
                 componentItem.appendChild(componentHeader);
@@ -583,13 +594,13 @@
             const primaryPackComponents = components.filter(c => c.type === 'Primary Pack');
             const secondaryPackComponents = components.filter(c => c.type === 'Secondary Packaging');
             
-            // Calculate Primary Pack total (all costs including freight, bulk, etc.)
+            // Calculate Primary Pack total (all costs including freight, bulk, scrap, etc.)
             const primaryPackTotal = primaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.bulkAssemblyScrap, 0);
+                sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             
-            // Calculate Secondary Pack total (all costs including freight, bulk, etc.)
+            // Calculate Secondary Pack total (all costs including freight, bulk, scrap, etc.)
             const secondaryPackTotal = secondaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.bulkAssemblyScrap, 0);
+                sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             
             // Calculate total duties (from all components)
             const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
@@ -678,40 +689,44 @@
                 c.sourceCountry,
                 '$' + c.componentCost.toFixed(2),
                 '$' + c.freightCost.toFixed(2),
-                '$' + c.bulkAssemblyScrap.toFixed(2),
+                '$' + c.bulkAssembly.toFixed(2),
+                c.scrapPercent.toFixed(2) + '%',
+                '$' + c.scrapCost.toFixed(2),
                 c.dutiesPercent.toFixed(2) + '%',
                 '$' + c.dutiesCost.toFixed(2),
                 c.standardTariffPercent.toFixed(2) + '%',
                 '$' + c.standardTariffCost.toFixed(2),
                 c.reciprocalTariffPercent.toFixed(2) + '%',
                 '$' + c.reciprocalTariffCost.toFixed(2),
-                '$' + (c.componentCost + c.freightCost + c.bulkAssemblyScrap + 
+                '$' + (c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost + 
                        c.dutiesCost + c.standardTariffCost + c.reciprocalTariffCost).toFixed(2)
             ]);
 
             // Add component table
             doc.autoTable({
                 startY: 56,
-                head: [['Component', 'Type', 'Vendor', 'Source', 'Comp Cost', 'Freight', 'Bulk/Asm/Scrap', 'Duties %', 'Duties $', 'Std Tariff %', 'Std Tariff $', 'Recip Tariff %', 'Recip Tariff $', 'Total']],
+                head: [['Component', 'Type', 'Vendor', 'Source', 'Comp Cost', 'Freight', 'Bulk Asm', 'Scrap %', 'Scrap $', 'Duties %', 'Duties $', 'Std Tariff %', 'Std Tariff $', 'Recip Tariff %', 'Recip Tariff $', 'Total']],
                 body: componentData,
                 theme: 'striped',
-                headStyles: { fillColor: [102, 126, 234], fontSize: 7 },
-                styles: { fontSize: 7, cellPadding: 1.5 },
+                headStyles: { fillColor: [102, 126, 234], fontSize: 6.5 },
+                styles: { fontSize: 6.5, cellPadding: 1 },
                 columnStyles: {
-                    0: { cellWidth: 20 },
-                    1: { cellWidth: 15 },
-                    2: { cellWidth: 15 },
-                    3: { cellWidth: 15 },
-                    4: { cellWidth: 12 },
-                    5: { cellWidth: 12 },
-                    6: { cellWidth: 15 },
-                    7: { cellWidth: 11 },
-                    8: { cellWidth: 11 },
-                    9: { cellWidth: 13 },
-                    10: { cellWidth: 13 },
-                    11: { cellWidth: 14 },
-                    12: { cellWidth: 14 },
-                    13: { cellWidth: 15 }
+                    0: { cellWidth: 16 },
+                    1: { cellWidth: 11 },
+                    2: { cellWidth: 11 },
+                    3: { cellWidth: 11 },
+                    4: { cellWidth: 11 },
+                    5: { cellWidth: 10 },
+                    6: { cellWidth: 10 },
+                    7: { cellWidth: 9 },
+                    8: { cellWidth: 9 },
+                    9: { cellWidth: 9 },
+                    10: { cellWidth: 9 },
+                    11: { cellWidth: 11 },
+                    12: { cellWidth: 11 },
+                    13: { cellWidth: 12 },
+                    14: { cellWidth: 12 },
+                    15: { cellWidth: 12 }
                 }
             });
 
@@ -720,9 +735,9 @@
             const secondaryPackComponents = components.filter(c => c.type === 'Secondary Packaging');
             
             const primaryPackTotal = primaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.bulkAssemblyScrap, 0);
+                sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             const secondaryPackTotal = secondaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.bulkAssemblyScrap, 0);
+                sum + c.componentCost + c.freightCost + c.bulkAssembly + c.scrapCost, 0);
             const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
             const totalStandardTariff = components.reduce((sum, c) => sum + c.standardTariffCost, 0);
             const totalReciprocalTariff = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);

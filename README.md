@@ -13,7 +13,8 @@ A web-based pricing calculator for computing DDP (Delivered Duty Paid) prices wi
    - Source country selection (14 countries available)
    - Component cost tracking
    - Freight cost tracking
-   - Bulk/Assembly/Scrap cost tracking
+   - Bulk Assembly cost tracking (fixed amount)
+   - Scrap cost tracking (percentage of component cost)
    - Duties calculated as percentage of component cost
 
 3. **Duties Calculation**
@@ -50,7 +51,8 @@ If you need offline functionality, download these libraries and update the scrip
    - Enter component cost
    - Select source country
    - Enter freight cost
-   - Enter bulk/assembly/scrap cost
+   - Enter bulk assembly cost
+   - Enter scrap percentage (applied to component cost)
    - Enter duties percentage (if applicable)
 4. Set expected margin percentage
 5. View the price summary
