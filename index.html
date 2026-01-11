@@ -245,7 +245,7 @@
                 <h2 class="section-title">Product Information</h2>
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="customerName">Customer Name *</label>
+                        <label for="customerName">Customer Name</label>
                         <input type="text" id="customerName" placeholder="Enter customer name">
                     </div>
                 </div>
@@ -476,8 +476,6 @@
 
             components.push(component);
             componentForm.reset();
-            // Reset reciprocal margin to default
-            document.getElementById('reciprocalMarginPercent').value = 10;
             renderComponents();
             updateSummary();
         }
