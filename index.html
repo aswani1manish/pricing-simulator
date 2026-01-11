@@ -143,10 +143,21 @@
             background: #e74c3c;
             padding: 8px 15px;
             font-size: 14px;
+            margin-left: 8px;
         }
 
         .btn-remove:hover {
             background: #c0392b;
+        }
+
+        .btn-edit {
+            background: #3498db;
+            padding: 8px 15px;
+            font-size: 14px;
+        }
+
+        .btn-edit:hover {
+            background: #2980b9;
         }
 
         .components-list {
@@ -416,6 +427,7 @@
         // Application State
         let components = [];
         let nextComponentId = 1;
+        let editingComponentId = null;
 
         // DOM Elements
         const componentForm = document.getElementById('componentForm');
@@ -424,16 +436,17 @@
         const reciprocalMarginPercentInput = document.getElementById('reciprocalMarginPercent');
         const freightOutCostInput = document.getElementById('freightOutCost');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
+        const submitButton = componentForm.querySelector('button[type="submit"]');
 
         // Event Listeners
         componentForm.addEventListener('submit', handleAddComponent);
         marginPercentInput.addEventListener('input', updateSummary);
         reciprocalMarginPercentInput.addEventListener('input', updateSummary);
         freightOutCostInput.addEventListener('input', updateSummary);
-        componentsList.addEventListener('click', handleRemoveClick);
+        componentsList.addEventListener('click', handleComponentActions);
         exportPdfBtn.addEventListener('click', exportToPdf);
 
-        // Add Component Handler
+        // Add/Update Component Handler
         function handleAddComponent(e) {
             e.preventDefault();
 
@@ -461,32 +474,61 @@
             const scrapCost = (componentCost * scrapPercent) / 100;
             const reciprocalTariffCost = ((componentCost + scrapCost) * reciprocalTariffPercent) / 100;
 
-            const component = {
-                id: nextComponentId++,
-                name: nameValue,
-                type: document.getElementById('componentType').value,
-                vendorName: document.getElementById('vendorName').value.trim(),
-                sourceCountry: document.getElementById('sourceCountry').value,
-                componentCost: componentCost,
-                freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
-                scrapPercent: scrapPercent,
-                scrapCost: scrapCost,
-                dutiesPercent: dutiesPercent,
-                dutiesCost: dutiesCost,
-                standardTariffPercent: standardTariffPercent,
-                standardTariffCost: standardTariffCost,
-                reciprocalTariffPercent: reciprocalTariffPercent,
-                reciprocalTariffCost: reciprocalTariffCost
-            };
+            if (editingComponentId !== null) {
+                // Update existing component
+                const componentIndex = components.findIndex(c => c.id === editingComponentId);
+                if (componentIndex !== -1) {
+                    components[componentIndex] = {
+                        id: editingComponentId,
+                        name: nameValue,
+                        type: document.getElementById('componentType').value,
+                        vendorName: document.getElementById('vendorName').value.trim(),
+                        sourceCountry: document.getElementById('sourceCountry').value,
+                        componentCost: componentCost,
+                        freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
+                        scrapPercent: scrapPercent,
+                        scrapCost: scrapCost,
+                        dutiesPercent: dutiesPercent,
+                        dutiesCost: dutiesCost,
+                        standardTariffPercent: standardTariffPercent,
+                        standardTariffCost: standardTariffCost,
+                        reciprocalTariffPercent: reciprocalTariffPercent,
+                        reciprocalTariffCost: reciprocalTariffCost
+                    };
+                }
+                // Clear edit mode
+                editingComponentId = null;
+                submitButton.textContent = 'Add Component';
+            } else {
+                // Add new component
+                const component = {
+                    id: nextComponentId++,
+                    name: nameValue,
+                    type: document.getElementById('componentType').value,
+                    vendorName: document.getElementById('vendorName').value.trim(),
+                    sourceCountry: document.getElementById('sourceCountry').value,
+                    componentCost: componentCost,
+                    freightCost: parseFloat(document.getElementById('freightCost').value) || 0,
+                    scrapPercent: scrapPercent,
+                    scrapCost: scrapCost,
+                    dutiesPercent: dutiesPercent,
+                    dutiesCost: dutiesCost,
+                    standardTariffPercent: standardTariffPercent,
+                    standardTariffCost: standardTariffCost,
+                    reciprocalTariffPercent: reciprocalTariffPercent,
+                    reciprocalTariffCost: reciprocalTariffCost
+                };
 
-            components.push(component);
+                components.push(component);
+            }
+            
             componentForm.reset();
             renderComponents();
             updateSummary();
         }
 
-        // Remove Component Handler
-        function handleRemoveClick(e) {
+        // Handle Component Actions (Edit and Remove)
+        function handleComponentActions(e) {
             if (e.target.classList.contains('btn-remove')) {
                 const id = parseInt(e.target.dataset.componentId, 10);
                 
@@ -497,8 +539,46 @@
                 }
                 
                 components = components.filter(c => c.id !== id);
+                
+                // Clear edit mode if we're deleting the component being edited
+                if (editingComponentId === id) {
+                    editingComponentId = null;
+                    submitButton.textContent = 'Add Component';
+                    componentForm.reset();
+                }
+                
                 renderComponents();
                 updateSummary();
+            } else if (e.target.classList.contains('btn-edit')) {
+                const id = parseInt(e.target.dataset.componentId, 10);
+                
+                // Validate that we got a valid ID
+                if (isNaN(id)) {
+                    console.error('Invalid component ID');
+                    return;
+                }
+                
+                const component = components.find(c => c.id === id);
+                if (component) {
+                    // Populate form with component values
+                    document.getElementById('componentName').value = component.name;
+                    document.getElementById('componentType').value = component.type;
+                    document.getElementById('vendorName').value = component.vendorName;
+                    document.getElementById('sourceCountry').value = component.sourceCountry;
+                    document.getElementById('componentCost').value = component.componentCost;
+                    document.getElementById('freightCost').value = component.freightCost;
+                    document.getElementById('scrapPercent').value = component.scrapPercent;
+                    document.getElementById('dutiesPercent').value = component.dutiesPercent;
+                    document.getElementById('standardTariffPercent').value = component.standardTariffPercent;
+                    document.getElementById('reciprocalTariffPercent').value = component.reciprocalTariffPercent;
+                    
+                    // Set edit mode
+                    editingComponentId = id;
+                    submitButton.textContent = 'Update Component';
+                    
+                    // Scroll to form
+                    componentForm.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
             }
         }
 
@@ -524,13 +604,23 @@
                 componentNameDiv.className = 'component-name';
                 componentNameDiv.textContent = component.name + ' (from ' + component.sourceCountry + ')'; // Safe from XSS
 
+                const buttonContainer = document.createElement('div');
+                
+                const editBtn = document.createElement('button');
+                editBtn.className = 'btn-edit';
+                editBtn.dataset.componentId = component.id;
+                editBtn.textContent = 'Edit';
+                
                 const removeBtn = document.createElement('button');
                 removeBtn.className = 'btn-remove';
                 removeBtn.dataset.componentId = component.id;
                 removeBtn.textContent = 'Remove';
 
+                buttonContainer.appendChild(editBtn);
+                buttonContainer.appendChild(removeBtn);
+                
                 componentHeader.appendChild(componentNameDiv);
-                componentHeader.appendChild(removeBtn);
+                componentHeader.appendChild(buttonContainer);
 
                 const componentDetails = document.createElement('div');
                 componentDetails.className = 'component-details';
