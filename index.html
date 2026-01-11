@@ -140,6 +140,17 @@
             background: #229954;
         }
 
+        .button-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .button-row button {
+            flex: 1;
+            margin-top: 0;
+        }
+
         .btn-remove {
             background: #e74c3c;
             padding: 6px 12px;
@@ -415,10 +426,11 @@
                     <span>Total Margin (<span id="totalMarginPercentDisplay">0.000</span>%):</span>
                     <span id="totalMarginAmount">$0.000</span>
                 </div>
-                <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
-                <button id="exportJsonBtn" class="btn-export" style="background: #2980b9; margin-top: 5px;">Export Data (JSON)</button>
-                <button id="importBtn" class="btn-export" style="background: #e67e22; margin-top: 5px;">Import Data (PDF/JSON)</button>
-                <input type="file" id="importFileInput" accept=".json,.pdf" style="display: none;">
+                <div class="button-row">
+                    <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
+                    <button id="importBtn" class="btn-export" style="background: #e67e22;">Import PDF</button>
+                </div>
+                <input type="file" id="importFileInput" accept=".pdf" style="display: none;">
             </div>
         </div>
     </div>
@@ -442,7 +454,6 @@
         const reciprocalMarginPercentInput = document.getElementById('reciprocalMarginPercent');
         const freightOutCostInput = document.getElementById('freightOutCost');
         const exportPdfBtn = document.getElementById('exportPdfBtn');
-        const exportJsonBtn = document.getElementById('exportJsonBtn');
         const importBtn = document.getElementById('importBtn');
         const importFileInput = document.getElementById('importFileInput');
         const submitButton = componentForm.querySelector('button[type="submit"]');
@@ -459,7 +470,6 @@
         freightOutCostInput.addEventListener('input', updateSummary);
         componentsList.addEventListener('click', handleComponentActions);
         exportPdfBtn.addEventListener('click', exportToPdf);
-        exportJsonBtn.addEventListener('click', exportToJson);
         importBtn.addEventListener('click', () => importFileInput.click());
         importFileInput.addEventListener('change', handleImportFile);
 
@@ -933,59 +943,14 @@
             // Add visible note about import capability
             doc.setTextColor(100, 100, 100);
             doc.setFontSize(8);
-            doc.text('This PDF contains embedded data for import. Use "Import Data (PDF/JSON)" to reload.', 14, yPosition + 5);
+            doc.text('This PDF contains embedded data for import. Use "Import PDF" to reload.', 14, yPosition + 5);
 
             // Save PDF
             const fileName = productName.replace(/[^a-z0-9]/gi, '_') + '_pricing.pdf';
             doc.save(fileName);
         }
 
-        // Export to JSON
-        function exportToJson() {
-            const customerName = document.getElementById('customerName').value.trim();
-            const productName = document.getElementById('productName').value.trim();
-            const freightOutCost = parseFloat(freightOutCostInput.value) || 0;
-            const marginPercent = parseFloat(marginPercentInput.value) || 0;
-            const reciprocalMarginPercent = parseFloat(reciprocalMarginPercentInput.value) || 0;
-
-            const data = {
-                version: '1.0',
-                exportDate: new Date().toISOString(),
-                productInfo: {
-                    customerName: customerName,
-                    productName: productName,
-                    freightOutCost: freightOutCost,
-                    marginPercent: marginPercent,
-                    reciprocalMarginPercent: reciprocalMarginPercent
-                },
-                components: components.map(c => ({
-                    name: c.name,
-                    type: c.type,
-                    vendorName: c.vendorName,
-                    sourceCountry: c.sourceCountry,
-                    componentCost: c.componentCost,
-                    freightCost: c.freightCost,
-                    scrapPercent: c.scrapPercent,
-                    dutiesPercent: c.dutiesPercent,
-                    standardTariffPercent: c.standardTariffPercent,
-                    reciprocalTariffPercent: c.reciprocalTariffPercent
-                }))
-            };
-
-            const jsonStr = JSON.stringify(data, null, 2);
-            const blob = new Blob([jsonStr], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            const fileName = (productName || 'pricing_data').replace(/[^a-z0-9]/gi, '_') + '.json';
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-
-        // Handle Import File (PDF or JSON)
+        // Handle Import File (PDF only)
         function handleImportFile(event) {
             const file = event.target.files[0];
             if (!file) {
@@ -994,36 +959,14 @@
 
             const fileExtension = file.name.split('.').pop().toLowerCase();
 
-            if (fileExtension === 'json') {
-                handleJsonImport(file);
-            } else if (fileExtension === 'pdf') {
+            if (fileExtension === 'pdf') {
                 handlePdfImport(file);
             } else {
-                alert('Unsupported file format. Please select a PDF or JSON file.');
+                alert('Unsupported file format. Please select a PDF file.');
             }
 
             // Reset file input
             event.target.value = '';
-        }
-
-        // Handle JSON Import
-        function handleJsonImport(file) {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const data = JSON.parse(e.target.result);
-                    importData(data);
-                } catch (error) {
-                    console.error('JSON import error:', error);
-                    alert('Error importing JSON file: ' + error.message);
-                }
-            };
-
-            reader.onerror = function() {
-                alert('Error reading JSON file.');
-            };
-
-            reader.readAsText(file);
         }
 
         // Handle PDF Import
