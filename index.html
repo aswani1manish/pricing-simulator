@@ -401,6 +401,10 @@
                     <span>Total Price:</span>
                     <span id="ddpPrice">$0.00</span>
                 </div>
+                <div class="summary-row">
+                    <span>Total Margin (<span id="totalMarginPercentDisplay">0.00</span>%):</span>
+                    <span id="totalMarginAmount">$0.00</span>
+                </div>
                 <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
             </div>
         </div>
@@ -611,6 +615,10 @@
             
             // Calculate total price
             const totalPrice = subtotal + marginAmount + reciprocalMarginAmount;
+            
+            // Calculate total margin (sum of both margins)
+            const totalMarginAmount = marginAmount + reciprocalMarginAmount;
+            const totalMarginPercent = subtotal > 0 ? (totalMarginAmount / subtotal) * 100 : 0;
 
             // Update DOM
             document.getElementById('primaryPackTotal').textContent = `$${primaryPackTotal.toFixed(2)}`;
@@ -624,6 +632,8 @@
             document.getElementById('reciprocalMarginPercentDisplay').textContent = reciprocalMarginPercent.toFixed(2);
             document.getElementById('reciprocalMarginAmount').textContent = `$${reciprocalMarginAmount.toFixed(2)}`;
             document.getElementById('ddpPrice').textContent = `$${totalPrice.toFixed(2)}`;
+            document.getElementById('totalMarginPercentDisplay').textContent = totalMarginPercent.toFixed(2);
+            document.getElementById('totalMarginAmount').textContent = `$${totalMarginAmount.toFixed(2)}`;
         }
 
         // Export to PDF
@@ -720,6 +730,10 @@
             const marginAmount = (subtotal * marginPercent) / 100;
             const reciprocalMarginAmount = (totalReciprocalTariff * reciprocalMarginPercent) / 100;
             const totalPrice = subtotal + marginAmount + reciprocalMarginAmount;
+            
+            // Calculate total margin
+            const totalMarginAmount = marginAmount + reciprocalMarginAmount;
+            const totalMarginPercent = subtotal > 0 ? (totalMarginAmount / subtotal) * 100 : 0;
 
             // Add summary table
             const summaryData = [
@@ -731,7 +745,8 @@
                 ['Freight Out', '$' + freightOutCost.toFixed(2)],
                 ['Margin (Product) (' + marginPercent.toFixed(2) + '%)', '$' + marginAmount.toFixed(2)],
                 ['Margin (Reciprocal Tariff) (' + reciprocalMarginPercent.toFixed(2) + '%)', '$' + reciprocalMarginAmount.toFixed(2)],
-                ['Total Price', '$' + totalPrice.toFixed(2)]
+                ['Total Price', '$' + totalPrice.toFixed(2)],
+                ['Total Margin (' + totalMarginPercent.toFixed(2) + '%)', '$' + totalMarginAmount.toFixed(2)]
             ];
 
             doc.autoTable({
@@ -746,7 +761,8 @@
                     1: { halign: 'right', cellWidth: 42 }
                 },
                 didParseCell: function(data) {
-                    if (data.section === 'body' && data.row.index === summaryData.length - 1) {
+                    // Highlight Total Price row (index 8)
+                    if (data.section === 'body' && data.row.index === 8) {
                         data.cell.styles.fillColor = [102, 126, 234];
                         data.cell.styles.textColor = [255, 255, 255];
                         data.cell.styles.fontStyle = 'bold';
