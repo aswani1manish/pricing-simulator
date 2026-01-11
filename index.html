@@ -16,6 +16,7 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             padding: 15px;
+            font-size: 80%;
         }
 
         .container {
@@ -30,50 +31,50 @@
         .header {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
         }
 
         .header img {
-            max-width: 200px;
+            max-width: 150px;
             height: auto;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             background: white;
-            padding: 10px;
-            border-radius: 10px;
+            padding: 8px;
+            border-radius: 8px;
         }
 
         .header h1 {
-            font-size: 2em;
-            margin-bottom: 8px;
+            font-size: 1.6em;
+            margin-bottom: 5px;
         }
 
         .content {
-            padding: 25px;
+            padding: 15px;
         }
 
         .section {
-            margin-bottom: 20px;
-            padding: 20px;
+            margin-bottom: 15px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 8px;
             border: 1px solid #e0e0e0;
         }
 
         .section-title {
-            font-size: 1.3em;
+            font-size: 1.1em;
             color: #667eea;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             font-weight: 600;
         }
 
         .form-group {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             color: #333;
             font-weight: 500;
         }
@@ -82,10 +83,10 @@
         input[type="number"],
         select {
             width: 100%;
-            padding: 10px;
+            padding: 6px;
             border: 2px solid #e0e0e0;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 14px;
             transition: border-color 0.3s;
         }
 
@@ -98,17 +99,17 @@
 
         .form-row {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 10px;
         }
 
         button {
             background: #667eea;
             color: white;
-            padding: 10px 24px;
+            padding: 8px 20px;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 6px;
+            font-size: 14px;
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
@@ -125,13 +126,13 @@
         }
 
         .btn-add {
-            margin-top: 15px;
+            margin-top: 10px;
             width: 100%;
         }
         
         .btn-export {
             background: #27ae60;
-            margin-top: 15px;
+            margin-top: 10px;
             width: 100%;
         }
         
@@ -141,8 +142,8 @@
 
         .btn-remove {
             background: #e74c3c;
-            padding: 8px 15px;
-            font-size: 14px;
+            padding: 6px 12px;
+            font-size: 13px;
             margin-left: 8px;
         }
 
@@ -152,8 +153,8 @@
 
         .btn-edit {
             background: #3498db;
-            padding: 8px 15px;
-            font-size: 14px;
+            padding: 6px 12px;
+            font-size: 13px;
         }
 
         .btn-edit:hover {
@@ -161,14 +162,14 @@
         }
 
         .components-list {
-            margin-top: 20px;
+            margin-top: 15px;
         }
 
         .component-item {
             background: white;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 12px;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
             border: 2px solid #e0e0e0;
             position: relative;
         }
@@ -177,24 +178,24 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
 
         .component-name {
-            font-size: 1.2em;
+            font-size: 1em;
             font-weight: 600;
             color: #667eea;
         }
 
         .component-details {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 10px;
-            margin-top: 10px;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 8px;
+            margin-top: 8px;
         }
 
         .component-detail {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #666;
         }
 
@@ -205,39 +206,39 @@
         .summary-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            margin-top: 15px;
         }
 
         .summary-row {
             display: flex;
             justify-content: space-between;
-            padding: 10px 0;
+            padding: 6px 0;
             border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-            font-size: 1.1em;
+            font-size: 0.95em;
         }
 
         .summary-row:last-child {
             border-bottom: none;
-            font-size: 1.5em;
+            font-size: 1.3em;
             font-weight: 700;
-            margin-top: 10px;
-            padding-top: 20px;
+            margin-top: 8px;
+            padding-top: 15px;
             border-top: 2px solid white;
         }
 
         .empty-state {
             text-align: center;
-            padding: 40px;
+            padding: 30px;
             color: #999;
             font-style: italic;
         }
 
         .info-text {
-            font-size: 0.9em;
+            font-size: 0.85em;
             color: #666;
-            margin-top: 5px;
+            margin-top: 3px;
             font-style: italic;
         }
     </style>
