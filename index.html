@@ -723,13 +723,13 @@
             const reciprocalMarginPercent = parseFloat(reciprocalMarginPercentInput.value) || 0;
             
             // Apply margins to get prices (margins are applied separately to different cost categories)
-            const primaryPackPrice = primaryPackCost * (1 + marginPercent / 100);
-            const secondaryPackPrice = secondaryPackCost * (1 + marginPercent / 100);
-            const bulkAssemblyPrice = bulkAssemblyCost * (1 + marginPercent / 100);
-            const dutiesPrice = totalDutiesCost * (1 + marginPercent / 100);
-            const standardTariffPrice = totalStandardTariff * (1 + marginPercent / 100);
-            const freightOutPrice = freightOutCost * (1 + marginPercent / 100);
-            const reciprocalTariffPrice = totalReciprocalTariffCost * (1 + reciprocalMarginPercent / 100);
+            const primaryPackPrice = primaryPackCost / (1 - marginPercent / 100);
+            const secondaryPackPrice = secondaryPackCost / (1 - marginPercent / 100);
+            const bulkAssemblyPrice = bulkAssemblyCost / (1 - marginPercent / 100);
+            const dutiesPrice = totalDutiesCost / (1 - marginPercent / 100);
+            const standardTariffPrice = totalStandardTariff / (1 - marginPercent / 100);
+            const freightOutPrice = freightOutCost / (1 - marginPercent / 100);
+            const reciprocalTariffPrice = totalReciprocalTariffCost / (1 - reciprocalMarginPercent / 100);
             
             // Calculate total price (sum of all prices including margins)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
