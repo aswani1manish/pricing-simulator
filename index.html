@@ -411,7 +411,11 @@
                     <span id="totalStandardTariff">$0.000</span>
                 </div>
                 <div class="summary-row">
-                    <span>Freight Out:</span>
+                    <span>Reciprocal Tariff:</span>
+                    <span id="totalReciprocalTariff">$0.000</span>
+                </div>
+                <div class="summary-row">
+                    <span>Total Freight:</span>
                     <span id="freightOutTotal">$0.000</span>
                 </div>
                 <div class="summary-row">
@@ -698,13 +702,13 @@
             
             // Calculate base costs (before applying margins)
             const primaryPackCost = primaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.scrapCost, 0);
+                sum + c.componentCost + c.scrapCost, 0);
             
             const secondaryPackCost = secondaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.scrapCost, 0);
+                sum + c.componentCost + c.scrapCost, 0);
             
             const bulkAssemblyCost = bulkAssemblyComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.scrapCost, 0);
+                sum + c.componentCost + c.scrapCost, 0);
             
             const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
             
@@ -712,7 +716,11 @@
             
             const totalReciprocalTariffCost = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);
             
+            const totalComponentFreight = components.reduce((sum, c) => sum + c.freightCost, 0);
+            
             const freightOutCost = parseFloat(freightOutCostInput.value) || 0;
+            
+            const totalFreightCost = freightOutCost + totalComponentFreight;
             
             // Get margin percentages
             const marginPercent = parseFloat(marginPercentInput.value) || 0;
@@ -724,12 +732,20 @@
             const bulkAssemblyPrice = bulkAssemblyCost / (1 - marginPercent / 100);
             const dutiesPrice = totalDutiesCost / (1 - marginPercent / 100);
             const standardTariffPrice = totalStandardTariff / (1 - marginPercent / 100);
-            const freightOutPrice = freightOutCost / (1 - marginPercent / 100);
+            const totalFreightPrice = totalFreightCost / (1 - marginPercent / 100);
             const reciprocalTariffPrice = totalReciprocalTariffCost / (1 - reciprocalMarginPercent / 100);
             
             // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
-                             standardTariffPrice + freightOutPrice;
+                             standardTariffPrice + reciprocalTariffPrice + totalFreightPrice;
+            
+            // Calculate total cost (sum of all base costs)
+            const totalCost = primaryPackCost + secondaryPackCost + bulkAssemblyCost + totalDutiesCost + 
+                            totalStandardTariff + totalReciprocalTariffCost + totalFreightCost;
+            
+            // Calculate total margin amount and percentage
+            const totalMarginAmount = totalPrice - totalCost;
+            const totalMarginPercent = totalCost > 0 ? (totalMarginAmount / totalCost) * 100 : 0;
 
             // Update DOM with prices (including margin)
             document.getElementById('primaryPackTotal').textContent = `$${primaryPackPrice.toFixed(3)}`;
@@ -738,7 +754,7 @@
             document.getElementById('totalDutiesCost').textContent = `$${dutiesPrice.toFixed(3)}`;
             document.getElementById('totalStandardTariff').textContent = `$${standardTariffPrice.toFixed(3)}`;
             document.getElementById('totalReciprocalTariff').textContent = `$${reciprocalTariffPrice.toFixed(3)}`;
-            document.getElementById('freightOutTotal').textContent = `$${freightOutPrice.toFixed(3)}`;
+            document.getElementById('freightOutTotal').textContent = `$${totalFreightPrice.toFixed(3)}`;
             document.getElementById('ddpPrice').textContent = `$${totalPrice.toFixed(3)}`;
         }
 
@@ -827,27 +843,38 @@
             const bulkAssemblyComponents = components.filter(c => c.type === 'Bulk/Assembly');
             
             const primaryPackCost = primaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.scrapCost, 0);
+                sum + c.componentCost + c.scrapCost, 0);
             const secondaryPackCost = secondaryPackComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.scrapCost, 0);
+                sum + c.componentCost + c.scrapCost, 0);
             const bulkAssemblyCost = bulkAssemblyComponents.reduce((sum, c) => 
-                sum + c.componentCost + c.freightCost + c.scrapCost, 0);
+                sum + c.componentCost + c.scrapCost, 0);
             const totalDutiesCost = components.reduce((sum, c) => sum + c.dutiesCost, 0);
             const totalStandardTariff = components.reduce((sum, c) => sum + c.standardTariffCost, 0);
             const totalReciprocalTariffCost = components.reduce((sum, c) => sum + c.reciprocalTariffCost, 0);
             
+            const totalComponentFreight = components.reduce((sum, c) => sum + c.freightCost, 0);
+            const totalFreightCost = freightOutCost + totalComponentFreight;
+            
             // Apply margins to get prices (margins are applied separately to different cost categories)
-            const primaryPackPrice = primaryPackCost * (1 + marginPercent / 100);
-            const secondaryPackPrice = secondaryPackCost * (1 + marginPercent / 100);
-            const bulkAssemblyPrice = bulkAssemblyCost * (1 + marginPercent / 100);
-            const dutiesPrice = totalDutiesCost * (1 + marginPercent / 100);
-            const standardTariffPrice = totalStandardTariff * (1 + marginPercent / 100);
-            const freightOutPrice = freightOutCost * (1 + marginPercent / 100);
-            const reciprocalTariffPrice = totalReciprocalTariffCost * (1 + reciprocalMarginPercent / 100);
+            const primaryPackPrice = primaryPackCost / (1 - marginPercent / 100);
+            const secondaryPackPrice = secondaryPackCost / (1 - marginPercent / 100);
+            const bulkAssemblyPrice = bulkAssemblyCost / (1 - marginPercent / 100);
+            const dutiesPrice = totalDutiesCost / (1 - marginPercent / 100);
+            const standardTariffPrice = totalStandardTariff / (1 - marginPercent / 100);
+            const totalFreightPrice = totalFreightCost / (1 - marginPercent / 100);
+            const reciprocalTariffPrice = totalReciprocalTariffCost / (1 - reciprocalMarginPercent / 100);
             
             // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
-                             standardTariffPrice + freightOutPrice;
+                             standardTariffPrice + reciprocalTariffPrice + totalFreightPrice;
+            
+            // Calculate total cost (sum of all base costs)
+            const totalCost = primaryPackCost + secondaryPackCost + bulkAssemblyCost + totalDutiesCost + 
+                            totalStandardTariff + totalReciprocalTariffCost + totalFreightCost;
+            
+            // Calculate total margin amount and percentage
+            const totalMarginAmount = totalPrice - totalCost;
+            const totalMarginPercent = totalCost > 0 ? (totalMarginAmount / totalCost) * 100 : 0;
 
             // Add summary table
             const summaryData = [
@@ -856,7 +883,8 @@
                 ['Bulk/Assembly', '$' + bulkAssemblyPrice.toFixed(3)],
                 ['Duties', '$' + dutiesPrice.toFixed(3)],
                 ['Standard Tariff', '$' + standardTariffPrice.toFixed(3)],
-                ['Freight Out', '$' + freightOutPrice.toFixed(3)],
+                ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)],
+                ['Total Freight', '$' + totalFreightPrice.toFixed(3)],
                 ['Total Price', '$' + totalPrice.toFixed(3)],
                 ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)]
             ];
