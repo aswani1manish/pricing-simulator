@@ -727,7 +727,7 @@
             const freightOutPrice = freightOutCost / (1 - marginPercent / 100);
             const reciprocalTariffPrice = totalReciprocalTariffCost / (1 - reciprocalMarginPercent / 100);
             
-            // Calculate total price (sum of all prices EXCLUDING reciprocal tariff)
+            // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
                              standardTariffPrice + freightOutPrice;
 
@@ -845,7 +845,7 @@
             const freightOutPrice = freightOutCost * (1 + marginPercent / 100);
             const reciprocalTariffPrice = totalReciprocalTariffCost * (1 + reciprocalMarginPercent / 100);
             
-            // Calculate total price (sum of all prices EXCLUDING reciprocal tariff)
+            // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
                              standardTariffPrice + freightOutPrice;
 
