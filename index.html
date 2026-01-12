@@ -423,8 +423,8 @@
                     <span id="ddpPrice"><b>$0.000</b></span> 
                 </div>
                 <div class="summary-row">
-                    <span>Total Margin (<span id="totalMarginPercentDisplay">0.000</span>%):</span>
-                    <span id="totalMarginAmount">$0.000</span>
+                    <span>Reciprocal Tariff:</span>
+                    <span id="totalReciprocalTariff">$0.000</span>
                 </div>
                 <div class="button-row">
                     <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
@@ -735,7 +735,7 @@
             const totalFreightPrice = totalFreightCost / (1 - marginPercent / 100);
             const reciprocalTariffPrice = totalReciprocalTariffCost / (1 - reciprocalMarginPercent / 100);
             
-            // Calculate total price (sum of all prices including margins)
+            // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
                              standardTariffPrice + reciprocalTariffPrice + totalFreightPrice;
             
@@ -756,8 +756,6 @@
             document.getElementById('totalReciprocalTariff').textContent = `$${reciprocalTariffPrice.toFixed(3)}`;
             document.getElementById('freightOutTotal').textContent = `$${totalFreightPrice.toFixed(3)}`;
             document.getElementById('ddpPrice').textContent = `$${totalPrice.toFixed(3)}`;
-            document.getElementById('totalMarginPercentDisplay').textContent = totalMarginPercent.toFixed(3);
-            document.getElementById('totalMarginAmount').textContent = `$${totalMarginAmount.toFixed(3)}`;
         }
 
         // Export to PDF
@@ -858,15 +856,15 @@
             const totalFreightCost = freightOutCost + totalComponentFreight;
             
             // Apply margins to get prices (margins are applied separately to different cost categories)
-            const primaryPackPrice = primaryPackCost * (1 + marginPercent / 100);
-            const secondaryPackPrice = secondaryPackCost * (1 + marginPercent / 100);
-            const bulkAssemblyPrice = bulkAssemblyCost * (1 + marginPercent / 100);
-            const dutiesPrice = totalDutiesCost * (1 + marginPercent / 100);
-            const standardTariffPrice = totalStandardTariff * (1 + marginPercent / 100);
-            const totalFreightPrice = totalFreightCost * (1 + marginPercent / 100);
-            const reciprocalTariffPrice = totalReciprocalTariffCost * (1 + reciprocalMarginPercent / 100);
+            const primaryPackPrice = primaryPackCost / (1 - marginPercent / 100);
+            const secondaryPackPrice = secondaryPackCost / (1 - marginPercent / 100);
+            const bulkAssemblyPrice = bulkAssemblyCost / (1 - marginPercent / 100);
+            const dutiesPrice = totalDutiesCost / (1 - marginPercent / 100);
+            const standardTariffPrice = totalStandardTariff / (1 - marginPercent / 100);
+            const totalFreightPrice = totalFreightCost / (1 - marginPercent / 100);
+            const reciprocalTariffPrice = totalReciprocalTariffCost / (1 - reciprocalMarginPercent / 100);
             
-            // Calculate total price (sum of all prices including margins)
+            // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
                              standardTariffPrice + reciprocalTariffPrice + totalFreightPrice;
             
@@ -888,7 +886,7 @@
                 ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)],
                 ['Total Freight', '$' + totalFreightPrice.toFixed(3)],
                 ['Total Price', '$' + totalPrice.toFixed(3)],
-                ['Total Margin (' + totalMarginPercent.toFixed(3) + '%)', '$' + totalMarginAmount.toFixed(3)]
+                ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)]
             ];
 
             doc.autoTable({
