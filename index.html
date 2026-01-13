@@ -232,6 +232,9 @@
 
         .summary-row:last-child {
             border-bottom: none;
+        }
+
+        .summary-row.total-price-row {
             font-size: 1.3em;
             font-weight: 700;
             margin-top: 8px;
@@ -411,16 +414,16 @@
                     <span id="totalStandardTariff">$0.000</span>
                 </div>
                 <div class="summary-row">
-                    <span>Reciprocal Tariff:</span>
-                    <span id="totalReciprocalTariff">$0.000</span>
-                </div>
-                <div class="summary-row">
                     <span>Total Freight:</span>
                     <span id="freightOutTotal">$0.000</span>
                 </div>
-                <div class="summary-row">
+                <div class="summary-row total-price-row">
                     <span><b>Total Price:</b></span>
                     <span id="ddpPrice"><b>$0.000</b></span> 
+                </div>
+                <div class="summary-row">
+                    <span>Reciprocal Tariff:</span>
+                    <span id="totalReciprocalTariff">$0.000</span>
                 </div>
                 <div class="button-row">
                     <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
@@ -879,9 +882,9 @@
                 ['Bulk/Assembly', '$' + bulkAssemblyPrice.toFixed(3)],
                 ['Duties', '$' + dutiesPrice.toFixed(3)],
                 ['Standard Tariff', '$' + standardTariffPrice.toFixed(3)],
-                ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)],
                 ['Total Freight', '$' + totalFreightPrice.toFixed(3)],
-                ['Total Price', '$' + totalPrice.toFixed(3)]
+                ['Total Price', '$' + totalPrice.toFixed(3)],
+                ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)]
             ];
 
             doc.autoTable({
