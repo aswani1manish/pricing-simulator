@@ -422,10 +422,6 @@
                     <span><b>Total Price:</b></span>
                     <span id="ddpPrice"><b>$0.000</b></span> 
                 </div>
-                <div class="summary-row">
-                    <span>Reciprocal Tariff:</span>
-                    <span id="totalReciprocalTariff">$0.000</span>
-                </div>
                 <div class="button-row">
                     <button id="exportPdfBtn" class="btn-export">Export to PDF</button>
                     <button id="importBtn" class="btn-export" style="background: #e67e22;">Import PDF</button>
@@ -737,11 +733,11 @@
             
             // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
-                             standardTariffPrice + reciprocalTariffPrice + totalFreightPrice;
+                             standardTariffPrice + totalFreightPrice;
             
-            // Calculate total cost (sum of all base costs)
+            // Calculate total cost (sum of all base costs excluding reciprocal tariff)
             const totalCost = primaryPackCost + secondaryPackCost + bulkAssemblyCost + totalDutiesCost + 
-                            totalStandardTariff + totalReciprocalTariffCost + totalFreightCost;
+                            totalStandardTariff + totalFreightCost;
             
             // Calculate total margin amount and percentage
             const totalMarginAmount = totalPrice - totalCost;
@@ -866,11 +862,11 @@
             
             // Calculate total price (sum of all prices excluding reciprocal tariff)
             const totalPrice = primaryPackPrice + secondaryPackPrice + bulkAssemblyPrice + dutiesPrice + 
-                             standardTariffPrice + reciprocalTariffPrice + totalFreightPrice;
+                             standardTariffPrice + totalFreightPrice;
             
-            // Calculate total cost (sum of all base costs)
+            // Calculate total cost (sum of all base costs excluding reciprocal tariff)
             const totalCost = primaryPackCost + secondaryPackCost + bulkAssemblyCost + totalDutiesCost + 
-                            totalStandardTariff + totalReciprocalTariffCost + totalFreightCost;
+                            totalStandardTariff + totalFreightCost;
             
             // Calculate total margin amount and percentage
             const totalMarginAmount = totalPrice - totalCost;
@@ -885,8 +881,7 @@
                 ['Standard Tariff', '$' + standardTariffPrice.toFixed(3)],
                 ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)],
                 ['Total Freight', '$' + totalFreightPrice.toFixed(3)],
-                ['Total Price', '$' + totalPrice.toFixed(3)],
-                ['Reciprocal Tariff', '$' + reciprocalTariffPrice.toFixed(3)]
+                ['Total Price', '$' + totalPrice.toFixed(3)]
             ];
 
             doc.autoTable({
