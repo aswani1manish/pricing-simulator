@@ -1033,7 +1033,7 @@
                             continue;
                         }
                         
-                        if (char === '"' && !escapeNext) {
+                        if (char === '"') {
                             inString = !inString;
                         }
                         
@@ -1050,7 +1050,7 @@
                         }
                     }
                     
-                    if (jsonEnd > 0) {
+                    if (jsonEnd !== -1) {
                         jsonString = jsonString.substring(0, jsonEnd);
                     }
                     
