@@ -941,7 +941,18 @@
             
             doc.setFontSize(6);
             doc.setTextColor(255, 255, 255); // White text (invisible on white background)
-            doc.text('DATA:' + jsonString, 14, yPosition);
+            
+            // Split the JSON string into chunks to avoid jsPDF text wrapping issues
+            // Use splitTextToSize with a very large width to split text properly
+            const maxWidth = 180; // Maximum width in mm for text (A4 is 210mm wide, with margins)
+            const textLines = doc.splitTextToSize('DATA:' + jsonString, maxWidth);
+            
+            // Add each line of text
+            let currentY = yPosition;
+            textLines.forEach(line => {
+                doc.text(line, 14, currentY);
+                currentY += 3; // Small line spacing
+            });
             
             // Add visible note about import capability
             doc.setTextColor(100, 100, 100);
@@ -999,13 +1010,57 @@
                 const dataIndex = fullText.indexOf('DATA:{');
                 if (dataIndex !== -1) {
                     const jsonStart = dataIndex + 5; // Skip "DATA:"
-                    const jsonString = fullText.substring(jsonStart);
+                    let jsonString = fullText.substring(jsonStart);
+                    
+                    // Remove any whitespace that might have been introduced by text wrapping
+                    // but preserve whitespace within string values
+                    // Try to find the end of the JSON object by counting braces
+                    let braceCount = 0;
+                    let inString = false;
+                    let escapeNext = false;
+                    let jsonEnd = -1;
+                    
+                    for (let i = 0; i < jsonString.length; i++) {
+                        const char = jsonString[i];
+                        
+                        if (escapeNext) {
+                            escapeNext = false;
+                            continue;
+                        }
+                        
+                        if (char === '\\') {
+                            escapeNext = true;
+                            continue;
+                        }
+                        
+                        if (char === '"') {
+                            inString = !inString;
+                        }
+                        
+                        if (!inString) {
+                            if (char === '{') {
+                                braceCount++;
+                            } else if (char === '}') {
+                                braceCount--;
+                                if (braceCount === 0) {
+                                    jsonEnd = i + 1;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    
+                    if (jsonEnd !== -1) {
+                        jsonString = jsonString.substring(0, jsonEnd);
+                    }
                     
                     // Try to parse the JSON - if it fails, the data is corrupted
                     try {
                         const data = JSON.parse(jsonString);
                         importData(data);
                     } catch (parseError) {
+                        console.error('JSON parse error:', parseError);
+                        console.error('Extracted JSON string:', jsonString);
                         alert('Could not parse embedded data. The PDF may be corrupted.');
                     }
                 } else {
